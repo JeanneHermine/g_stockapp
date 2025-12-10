@@ -3,6 +3,18 @@ import 'src/app.dart';
 import 'services/supabase_service.dart';
 import 'services/backend_selector.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+
+Future<void> testFirestore() async {
+  final db = FirebaseFirestore.instance;
+  await db.collection('products').add({
+    'name': 'Test produit',
+    'stock': 10,
+    'price': 99.99,
+  });
+  print('Produit ajouté dans Firestore');
+}
 
 Future<void> _initBackend() async {
   try {
