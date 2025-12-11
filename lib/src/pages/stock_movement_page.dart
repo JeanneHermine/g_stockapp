@@ -150,8 +150,7 @@ class _StockMovementPageContentState extends State<_StockMovementPageContent> {
             ElevatedButton(
               onPressed: () {
                 // Ajout logique métier ici
-                final productId = productIdController.text;
-                final quantity = quantityController.text;
+                // Utiliser productIdController.text et quantityController.text directement si besoin
                 Navigator.pop(context);
               },
               child: const Text('Ajouter'),

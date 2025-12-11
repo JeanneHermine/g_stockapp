@@ -169,8 +169,7 @@ class _UserRolePageContentState extends State<_UserRolePageContent> {
             ElevatedButton(
               onPressed: () {
                 // Ajout logique métier ici
-                final name = nameController.text;
-                final role = roleController.text;
+                // Utiliser nameController.text et roleController.text directement si besoin
                 Navigator.pop(context);
               },
               child: const Text('Ajouter'),
