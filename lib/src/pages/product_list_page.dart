@@ -29,9 +29,9 @@ class _ProductListPageContentState extends State<_ProductListPageContent> {
   Widget build(BuildContext context) {
     // Filtrage dynamique
     final filteredProducts = widget.products.where((product) {
-      final name = product.name ?? '';
-      final sku = product.sku ?? '';
-      final categoryId = product.categoryId ?? '';
+      final name = product.name;
+      final sku = product.sku;
+      final categoryId = product.categoryId;
       final matchesSearch =
           name.toLowerCase().contains(searchQuery.toLowerCase()) ||
           sku.toLowerCase().contains(searchQuery.toLowerCase());
@@ -80,8 +80,8 @@ class _ProductListPageContentState extends State<_ProductListPageContent> {
               itemBuilder: (context, index) {
                 final product = filteredProducts[index];
                 return ListTile(
-                  title: Text(product.name ?? ''),
-                  subtitle: Text('Stock: ${product.stock ?? 0}'),
+                  title: Text(product.name),
+                  subtitle: Text('Stock: ${product.stock}'),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -117,8 +117,8 @@ class _ProductListPageContentState extends State<_ProductListPageContent> {
   List<String> _getCategories(List<Product> products) {
     final set = <String>{};
     for (var p in products) {
-      final cat = p.categoryId ?? '';
-      if (cat.isNotEmpty) {
+      final cat = p.categoryId;
+      if (cat != null && cat.isNotEmpty) {
         set.add(cat);
       }
     }

@@ -23,9 +23,19 @@ class ExportService {
   static void exportProductsToExcel(List products, String filePath) {
     final excel = Excel.createExcel();
     final sheet = excel['Produits'];
-    sheet.appendRow(['Nom', 'SKU', 'Prix', 'Stock']);
+    sheet.appendRow([
+      TextCellValue('Nom'),
+      TextCellValue('SKU'),
+      TextCellValue('Prix'),
+      TextCellValue('Stock'),
+    ]);
     for (var p in products) {
-      sheet.appendRow([p.name, p.sku, p.price, p.stock]);
+      sheet.appendRow([
+        TextCellValue(p.name ?? ''),
+        TextCellValue(p.sku ?? ''),
+        TextCellValue(p.price?.toString() ?? '0'),
+        TextCellValue(p.stock?.toString() ?? '0'),
+      ]);
     }
     final file = File(filePath);
     file.writeAsBytesSync(excel.encode()!);
