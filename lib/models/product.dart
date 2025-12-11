@@ -1,3 +1,4 @@
+/// Modèle représentant un produit en stock
 class Product {
   final String id;
   final String sku;
@@ -5,6 +6,7 @@ class Product {
   final double price;
   final int stock;
   final String storeId;
+  final String? categoryId;
 
   Product({
     required this.id,
@@ -13,6 +15,7 @@ class Product {
     required this.price,
     required this.stock,
     required this.storeId,
+    this.categoryId,
   });
 
   Map<String, dynamic> toMap() => {
@@ -21,6 +24,7 @@ class Product {
     'price': price,
     'stock': stock,
     'storeId': storeId,
+    'categoryId': categoryId,
   };
 
   factory Product.fromMap(String id, Map<String, dynamic> m) => Product(
@@ -30,5 +34,6 @@ class Product {
     price: (m['price'] as num).toDouble(),
     stock: m['stock'],
     storeId: m['storeId'],
+    categoryId: m['categoryId'],
   );
 }
