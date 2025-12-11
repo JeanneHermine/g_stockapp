@@ -2,6 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import 'services/backend_selector.dart';
+import 'src/pages/advanced_stats_page.dart';
+import 'src/pages/auth_page.dart';
+import 'src/pages/category_list_page.dart';
+import 'src/pages/export_import_page.dart';
+import 'src/pages/main_menu_page.dart';
+import 'src/pages/notification_page.dart';
+import 'src/pages/product_list_page.dart';
+import 'src/pages/stock_movement_page.dart';
+import 'src/pages/user_role_page.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -57,32 +66,19 @@ class StockApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Rapport Stock')),
-        body: FutureBuilder<int>(
-          future: _getProductCount(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) {
-              return Center(child: Text('Erreur: ${snapshot.error}'));
-            }
-            return Center(
-              child: Text(
-                'Nombre total de produits en stock: ${snapshot.data ?? 0}',
-              ),
-            );
-          },
-        ),
-      ),
+      home: const MainMenuPage(),
+      routes: {
+        '/products': (context) => ProductListPage(products: const []),
+        '/categories': (context) => CategoryListPage(categories: const []),
+        '/movements': (context) => StockMovementPage(movements: const []),
+        '/users': (context) => UserRolePage(users: const []),
+        '/stats': (context) =>
+            AdvancedStatsPage(totalSales: 0, lowStockProducts: 0),
+        '/auth': (context) => const AuthPage(),
+        '/export': (context) => const ExportImportPage(),
+        '/notifications': (context) =>
+            NotificationPage(notifications: const []),
+      },
     );
   }
-}
-
-Future<int> _getProductCount() async {
-  // Exemple: récupération du nombre de produits depuis Firestore
-  final db = FirebaseFirestore.instance;
-  final snapshot = await db.collection('products').get();
-  return snapshot.docs.length;
 }
