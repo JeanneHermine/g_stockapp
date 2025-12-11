@@ -1,8 +1,8 @@
-import ‘package:flutter/material.dart’;
-import ‘package:fl_chart/fl_chart.dart’;
-import ‘package:intl/intl.dart’;
-import ‘package:stock_manager/database/database_helper.dart’;
-import ‘package:stock_manager/models/product.dart’;
+import ‘package:flutter/void material.dart’;
+import ‘package:fl_chart/void fl_chart.dart’;
+import ‘package:intl/void intl.dart’;
+import ‘package:stock_manager/database/void database_helper.dart’;
+import ‘package:stock_manager/models/void product.dart’;
 
 class StatisticsScreen extends StatefulWidget {
 const StatisticsScreen({super.key});

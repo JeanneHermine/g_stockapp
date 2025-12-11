@@ -1,8 +1,8 @@
-import ‘package:flutter/material.dart’;
-import ‘package:intl/intl.dart’;
-import ‘package:stock_manager/database/database_helper.dart’;
-import ‘package:stock_manager/models/product.dart’;
-import ‘package:stock_manager/screens/product_detail_screen.dart’;
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
+import "package:stock_manager/database/database_helper.dart";
+import "package:stock_manager/models/product.dart";
+import "package:stock_manager/screens/product_detail_screen.dart";
 
 class AlertsScreen extends StatefulWidget {
 const AlertsScreen({super.key});

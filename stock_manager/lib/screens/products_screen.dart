@@ -1,10 +1,10 @@
-import ‘package:flutter/material.dart’;
-import ‘package:intl/intl.dart’;
-import ‘package:stock_manager/database/database_helper.dart’;
-import ‘package:stock_manager/models/product.dart’;
-import ‘package:stock_manager/screens/product_detail_screen.dart’;
-import ‘package:stock_manager/screens/barcode_scanner_screen.dart’;
-import ‘package:stock_manager/utils/export_helper.dart’;
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
+import "package:stock_manager/database/database_helper.dart";
+import "package:stock_manager/models/product.dart";
+import "package:stock_manager/screens/product_detail_screen.dart";
+import "package:stock_manager/screens/barcode_scanner_screen.dart";
+import "package:stock_manager/utils/export_helper.dart";
 
 class ProductsScreen extends StatefulWidget {
 const ProductsScreen({super.key});
