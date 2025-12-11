@@ -27,13 +27,22 @@ class Product {
     'categoryId': categoryId,
   };
 
-  factory Product.fromMap(String id, Map<String, dynamic> m) => Product(
-    id: id,
-    sku: m['sku'],
-    name: m['name'],
-    price: (m['price'] as num).toDouble(),
-    stock: m['stock'],
-    storeId: m['storeId'],
-    categoryId: m['categoryId'],
-  );
+  factory Product.fromMap(String id, Map<String, dynamic> m) {
+    // Utilisation de ?? pour fournir une valeur par défaut si la clé est manquante ou null.
+    // Utilisation de 'as Type' pour garantir le type ou un cast.
+    // Note : Nous forçons le type String, si la valeur est manquante ou null, on utilise '' (chaîne vide).
+    final rawPrice = m['price'] ?? 0.0;
+    final rawStock = m['stock'] ?? 0;
+
+    return Product(
+      id: id,
+      sku: (m['sku'] as String?) ?? '', // Garantit String ou utilise ''
+      name: (m['name'] as String?) ?? '', // Garantit String ou utilise ''
+      // Le prix peut être int ou double dans JSON/Map, nous utilisons num pour la conversion sûre.
+      price: (rawPrice as num).toDouble(),
+      stock: (rawStock as int).toInt(), // Garantit int ou utilise 0
+      storeId: (m['storeId'] as String?) ?? '', // Garantit String ou utilise ''
+      categoryId: m['categoryId'] as String?, // Le type String? est conservé
+    );
+  }
 }
