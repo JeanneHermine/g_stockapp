@@ -1,44 +1,43 @@
 import 'package:flutter/material.dart';
-import 'package:mon_premier_projet/models/category.dart';
+import 'package:mon_premier_projet/models/invoice.dart';
 
-class CategoryListPage extends StatelessWidget {
-  final List<Category> categories;
-
-  const CategoryListPage({super.key, required this.categories});
+class InvoiceListPage extends StatelessWidget {
+  final List<Invoice> invoices;
+  const InvoiceListPage({super.key, required this.invoices});
 
   @override
   Widget build(BuildContext context) {
-    return _CategoryListPageContent(categories: categories);
+    return _InvoiceListPageContent(invoices: invoices);
   }
 }
 
-class _CategoryListPageContent extends StatefulWidget {
-  final List<Category> categories;
-  const _CategoryListPageContent({required this.categories});
+class _InvoiceListPageContent extends StatefulWidget {
+  final List<Invoice> invoices;
+  const _InvoiceListPageContent({required this.invoices});
 
   @override
-  State<_CategoryListPageContent> createState() =>
-      _CategoryListPageContentState();
+  State<_InvoiceListPageContent> createState() =>
+      _InvoiceListPageContentState();
 }
 
-class _CategoryListPageContentState extends State<_CategoryListPageContent> {
+class _InvoiceListPageContentState extends State<_InvoiceListPageContent> {
   String searchQuery = '';
 
   @override
   Widget build(BuildContext context) {
-    final filteredCategories = widget.categories.where((category) {
-      return category.name.toLowerCase().contains(searchQuery.toLowerCase());
+    final filteredInvoices = widget.invoices.where((invoice) {
+      return invoice.id.toLowerCase().contains(searchQuery.toLowerCase());
     }).toList();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Catégories')),
+      appBar: AppBar(title: const Text('Factures')),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               decoration: const InputDecoration(
-                labelText: 'Rechercher une catégorie',
+                labelText: 'Rechercher une facture',
                 prefixIcon: Icon(Icons.search),
               ),
               onChanged: (value) {
@@ -50,24 +49,25 @@ class _CategoryListPageContentState extends State<_CategoryListPageContent> {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: filteredCategories.length,
+              itemCount: filteredInvoices.length,
               itemBuilder: (context, index) {
-                final category = filteredCategories[index];
+                final invoice = filteredInvoices[index];
                 return ListTile(
-                  title: Text(category.name),
+                  title: Text('Facture #${invoice.id}'),
+                  subtitle: Text('Total: ${invoice.total} €'),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
                         icon: const Icon(Icons.edit),
                         onPressed: () {
-                          _showEditCategoryDialog(context, category);
+                          _showEditInvoiceDialog(context, invoice);
                         },
                       ),
                       IconButton(
                         icon: const Icon(Icons.delete),
                         onPressed: () {
-                          _showDeleteCategoryDialog(context, category);
+                          _showDeleteInvoiceDialog(context, invoice);
                         },
                       ),
                     ],
@@ -80,27 +80,21 @@ class _CategoryListPageContentState extends State<_CategoryListPageContent> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _showAddCategoryDialog(context);
+          _showAddInvoiceDialog(context);
         },
         child: const Icon(Icons.add),
       ),
     );
   }
 
-  // ...existing code for dialogs...
-  // ...existing code...
-
-  void _showAddCategoryDialog(BuildContext context) {
-    final nameController = TextEditingController();
+  void _showAddInvoiceDialog(BuildContext context) {
+    // Ajout logique métier ici
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Ajouter une catégorie'),
-          content: TextField(
-            decoration: const InputDecoration(labelText: 'Nom'),
-            controller: nameController,
-          ),
+          title: const Text('Ajouter une facture'),
+          content: const Text('Formulaire à compléter...'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -108,8 +102,6 @@ class _CategoryListPageContentState extends State<_CategoryListPageContent> {
             ),
             ElevatedButton(
               onPressed: () {
-                // Ajout logique métier ici
-                // Utiliser nameController.text si besoin
                 Navigator.pop(context);
               },
               child: const Text('Ajouter'),
@@ -120,18 +112,14 @@ class _CategoryListPageContentState extends State<_CategoryListPageContent> {
     );
   }
 
-  void _showEditCategoryDialog(BuildContext context, Category category) {
+  void _showEditInvoiceDialog(BuildContext context, Invoice invoice) {
+    // Modification logique métier ici
     showDialog(
       context: context,
       builder: (context) {
-        String name = category.name;
         return AlertDialog(
-          title: const Text('Modifier la catégorie'),
-          content: TextField(
-            decoration: const InputDecoration(labelText: 'Nom'),
-            controller: TextEditingController(text: name),
-            onChanged: (value) => name = value,
-          ),
+          title: const Text('Modifier la facture'),
+          content: const Text('Formulaire à compléter...'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -139,7 +127,6 @@ class _CategoryListPageContentState extends State<_CategoryListPageContent> {
             ),
             ElevatedButton(
               onPressed: () {
-                // Modification logique métier ici
                 Navigator.pop(context);
               },
               child: const Text('Enregistrer'),
@@ -150,13 +137,15 @@ class _CategoryListPageContentState extends State<_CategoryListPageContent> {
     );
   }
 
-  void _showDeleteCategoryDialog(BuildContext context, Category category) {
+  void _showDeleteInvoiceDialog(BuildContext context, Invoice invoice) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Supprimer la catégorie'),
-          content: Text('Voulez-vous vraiment supprimer ${category.name} ?'),
+          title: const Text('Supprimer la facture'),
+          content: Text(
+            'Voulez-vous vraiment supprimer la facture #${invoice.id} ?',
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -164,7 +153,6 @@ class _CategoryListPageContentState extends State<_CategoryListPageContent> {
             ),
             ElevatedButton(
               onPressed: () {
-                // Suppression logique métier ici
                 Navigator.pop(context);
               },
               child: const Text('Supprimer'),

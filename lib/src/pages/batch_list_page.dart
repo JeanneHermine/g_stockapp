@@ -1,44 +1,44 @@
 import 'package:flutter/material.dart';
-import 'package:mon_premier_projet/models/category.dart';
+import 'package:mon_premier_projet/models/batch.dart';
 
-class CategoryListPage extends StatelessWidget {
-  final List<Category> categories;
-
-  const CategoryListPage({super.key, required this.categories});
+class BatchListPage extends StatelessWidget {
+  final List<Batch> batches;
+  const BatchListPage({super.key, required this.batches});
 
   @override
   Widget build(BuildContext context) {
-    return _CategoryListPageContent(categories: categories);
+    return _BatchListPageContent(batches: batches);
   }
 }
 
-class _CategoryListPageContent extends StatefulWidget {
-  final List<Category> categories;
-  const _CategoryListPageContent({required this.categories});
+class _BatchListPageContent extends StatefulWidget {
+  final List<Batch> batches;
+  const _BatchListPageContent({required this.batches});
 
   @override
-  State<_CategoryListPageContent> createState() =>
-      _CategoryListPageContentState();
+  State<_BatchListPageContent> createState() => _BatchListPageContentState();
 }
 
-class _CategoryListPageContentState extends State<_CategoryListPageContent> {
+class _BatchListPageContentState extends State<_BatchListPageContent> {
   String searchQuery = '';
 
   @override
   Widget build(BuildContext context) {
-    final filteredCategories = widget.categories.where((category) {
-      return category.name.toLowerCase().contains(searchQuery.toLowerCase());
+    final filteredBatches = widget.batches.where((batch) {
+      return batch.serialNumber.toLowerCase().contains(
+        searchQuery.toLowerCase(),
+      );
     }).toList();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Catégories')),
+      appBar: AppBar(title: const Text('Lots & Numéros de série')),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               decoration: const InputDecoration(
-                labelText: 'Rechercher une catégorie',
+                labelText: 'Rechercher un numéro de série',
                 prefixIcon: Icon(Icons.search),
               ),
               onChanged: (value) {
@@ -50,24 +50,27 @@ class _CategoryListPageContentState extends State<_CategoryListPageContent> {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: filteredCategories.length,
+              itemCount: filteredBatches.length,
               itemBuilder: (context, index) {
-                final category = filteredCategories[index];
+                final batch = filteredBatches[index];
                 return ListTile(
-                  title: Text(category.name),
+                  title: Text('Lot #${batch.id}'),
+                  subtitle: Text(
+                    'Produit: ${batch.productId} | Série: ${batch.serialNumber}',
+                  ),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
                         icon: const Icon(Icons.edit),
                         onPressed: () {
-                          _showEditCategoryDialog(context, category);
+                          _showEditBatchDialog(context, batch);
                         },
                       ),
                       IconButton(
                         icon: const Icon(Icons.delete),
                         onPressed: () {
-                          _showDeleteCategoryDialog(context, category);
+                          _showDeleteBatchDialog(context, batch);
                         },
                       ),
                     ],
@@ -80,27 +83,21 @@ class _CategoryListPageContentState extends State<_CategoryListPageContent> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _showAddCategoryDialog(context);
+          _showAddBatchDialog(context);
         },
         child: const Icon(Icons.add),
       ),
     );
   }
 
-  // ...existing code for dialogs...
-  // ...existing code...
-
-  void _showAddCategoryDialog(BuildContext context) {
-    final nameController = TextEditingController();
+  void _showAddBatchDialog(BuildContext context) {
+    // Ajout logique métier ici
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Ajouter une catégorie'),
-          content: TextField(
-            decoration: const InputDecoration(labelText: 'Nom'),
-            controller: nameController,
-          ),
+          title: const Text('Ajouter un lot'),
+          content: const Text('Formulaire à compléter...'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -108,8 +105,6 @@ class _CategoryListPageContentState extends State<_CategoryListPageContent> {
             ),
             ElevatedButton(
               onPressed: () {
-                // Ajout logique métier ici
-                // Utiliser nameController.text si besoin
                 Navigator.pop(context);
               },
               child: const Text('Ajouter'),
@@ -120,18 +115,14 @@ class _CategoryListPageContentState extends State<_CategoryListPageContent> {
     );
   }
 
-  void _showEditCategoryDialog(BuildContext context, Category category) {
+  void _showEditBatchDialog(BuildContext context, Batch batch) {
+    // Modification logique métier ici
     showDialog(
       context: context,
       builder: (context) {
-        String name = category.name;
         return AlertDialog(
-          title: const Text('Modifier la catégorie'),
-          content: TextField(
-            decoration: const InputDecoration(labelText: 'Nom'),
-            controller: TextEditingController(text: name),
-            onChanged: (value) => name = value,
-          ),
+          title: const Text('Modifier le lot'),
+          content: const Text('Formulaire à compléter...'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -139,7 +130,6 @@ class _CategoryListPageContentState extends State<_CategoryListPageContent> {
             ),
             ElevatedButton(
               onPressed: () {
-                // Modification logique métier ici
                 Navigator.pop(context);
               },
               child: const Text('Enregistrer'),
@@ -150,13 +140,13 @@ class _CategoryListPageContentState extends State<_CategoryListPageContent> {
     );
   }
 
-  void _showDeleteCategoryDialog(BuildContext context, Category category) {
+  void _showDeleteBatchDialog(BuildContext context, Batch batch) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Supprimer la catégorie'),
-          content: Text('Voulez-vous vraiment supprimer ${category.name} ?'),
+          title: const Text('Supprimer le lot'),
+          content: Text('Voulez-vous vraiment supprimer le lot #${batch.id} ?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -164,7 +154,6 @@ class _CategoryListPageContentState extends State<_CategoryListPageContent> {
             ),
             ElevatedButton(
               onPressed: () {
-                // Suppression logique métier ici
                 Navigator.pop(context);
               },
               child: const Text('Supprimer'),

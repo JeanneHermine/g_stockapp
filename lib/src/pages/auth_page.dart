@@ -35,8 +35,6 @@ class AuthPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // Ajout logique métier ici
-                final username = usernameController.text;
-                final password = passwordController.text;
                 Navigator.pop(context);
               },
               child: const Text('Connexion'),

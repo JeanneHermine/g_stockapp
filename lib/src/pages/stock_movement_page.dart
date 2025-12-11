@@ -8,20 +8,95 @@ class StockMovementPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return _StockMovementPageContent(movements: movements);
+  }
+}
+
+class _StockMovementPageContent extends StatefulWidget {
+  final List<StockMovement> movements;
+  const _StockMovementPageContent({required this.movements});
+
+  @override
+  State<_StockMovementPageContent> createState() =>
+      _StockMovementPageContentState();
+}
+
+class _StockMovementPageContentState extends State<_StockMovementPageContent> {
+  String searchQuery = '';
+  String selectedType = 'Tous';
+
+  @override
+  Widget build(BuildContext context) {
+    final filteredMovements = widget.movements.where((movement) {
+      final matchesSearch = movement.productId.toLowerCase().contains(
+        searchQuery.toLowerCase(),
+      );
+      final matchesType =
+          selectedType == 'Tous' || movement.type == selectedType;
+      return matchesSearch && matchesType;
+    }).toList();
+
     return Scaffold(
       appBar: AppBar(title: const Text('Mouvements de stock')),
-      body: ListView.builder(
-        itemCount: movements.length,
-        itemBuilder: (context, index) {
-          final movement = movements[index];
-          return ListTile(
-            title: Text(movement.type == 'in' ? 'Entrée' : 'Sortie'),
-            subtitle: Text(
-              'Produit: ${movement.productId} | Quantité: ${movement.quantity}',
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              decoration: const InputDecoration(
+                labelText: 'Rechercher par produit',
+                prefixIcon: Icon(Icons.search),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  searchQuery = value;
+                });
+              },
             ),
-            trailing: Text(movement.date.toString()),
-          );
-        },
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: DropdownButton<String>(
+              value: selectedType,
+              items: <String>['Tous', 'in', 'out']
+                  .map(
+                    (type) => DropdownMenuItem(
+                      value: type,
+                      child: Text(
+                        type == 'in'
+                            ? 'Entrée'
+                            : type == 'out'
+                            ? 'Sortie'
+                            : 'Tous',
+                      ),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() {
+                    selectedType = value;
+                  });
+                }
+              },
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: filteredMovements.length,
+              itemBuilder: (context, index) {
+                final movement = filteredMovements[index];
+                return ListTile(
+                  title: Text(movement.type == 'in' ? 'Entrée' : 'Sortie'),
+                  subtitle: Text(
+                    'Produit: ${movement.productId} | Quantité: ${movement.quantity}',
+                  ),
+                  trailing: Text(movement.date.toString()),
+                );
+              },
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -31,6 +106,8 @@ class StockMovementPage extends StatelessWidget {
       ),
     );
   }
+
+  // ...existing code for dialogs...
 
   void _showAddMovementDialog(BuildContext context) {
     final productIdController = TextEditingController();

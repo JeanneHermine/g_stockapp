@@ -1,0 +1,33 @@
+import 'dart:io';
+
+import 'package:excel/excel.dart';
+import 'package:pdf/widgets.dart' as pw;
+
+class ExportService {
+  static Future<void> exportProductsToPDF(
+    List products,
+    String filePath,
+  ) async {
+    final pdf = pw.Document();
+    pdf.addPage(
+      pw.Page(
+        build: (context) => pw.ListView(
+          children: products.map((p) => pw.Text(p.toString())).toList(),
+        ),
+      ),
+    );
+    final file = File(filePath);
+    await file.writeAsBytes(await pdf.save());
+  }
+
+  static void exportProductsToExcel(List products, String filePath) {
+    final excel = Excel.createExcel();
+    final sheet = excel['Produits'];
+    sheet.appendRow(['Nom', 'SKU', 'Prix', 'Stock']);
+    for (var p in products) {
+      sheet.appendRow([p.name, p.sku, p.price, p.stock]);
+    }
+    final file = File(filePath);
+    file.writeAsBytesSync(excel.encode()!);
+  }
+}
