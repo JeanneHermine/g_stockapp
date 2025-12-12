@@ -15,7 +15,6 @@ class _AlertsScreenState extends State<AlertsScreen> {
 List<Product> _lowStockProducts = [];
 bool _isLoading = true;
 
-
 @override
 void initState() {
 super.initState();
