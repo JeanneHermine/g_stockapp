@@ -1,8 +1,8 @@
-import ‘package:flutter/void material.dart’;
-import ‘package:fl_chart/void fl_chart.dart’;
-import ‘package:intl/void intl.dart’;
-import ‘package:stock_manager/database/void database_helper.dart’;
-import ‘package:stock_manager/models/void product.dart’;
+import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
+import 'package:stock_manager/database/database_helper.dart';
+import 'package:stock_manager/models/product.dart';
 
 class StatisticsScreen extends StatefulWidget {
 const StatisticsScreen({super.key});
@@ -99,7 +99,7 @@ Row(
 children: [
 Expanded(
 child: _buildStatCard(
-‘Produits’,
+'Produits',
 _getTotalProducts().toString(),
 Icons.inventory_2,
 Colors.blue,
@@ -108,7 +108,7 @@ Colors.blue,
 const SizedBox(width: 12),
 Expanded(
 child: _buildStatCard(
-‘Quantité totale’,
+'Quantité totale',
 _getTotalQuantity().toString(),
 Icons.shopping_cart,
 Colors.green,
@@ -121,8 +121,8 @@ Row(
 children: [
 Expanded(
 child: _buildStatCard(
-‘Valeur totale’,
-NumberFormat.currency(symbol: ‘€’, decimalDigits: 0)
+'Valeur totale',
+NumberFormat.currency(symbol: '€', decimalDigits: 0)
 .format(_getTotalValue()),
 Icons.euro,
 Colors.orange,
@@ -131,7 +131,7 @@ Colors.orange,
 const SizedBox(width: 12),
 Expanded(
 child: _buildStatCard(
-‘Alertes stock’,
+'Alertes stock',
 _getLowStockCount().toString(),
 Icons.warning_amber,
 Colors.red,

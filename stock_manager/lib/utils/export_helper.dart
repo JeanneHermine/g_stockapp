@@ -35,8 +35,8 @@ for (var product in products) {
     product.quantity,
     product.minQuantity,
     product.description ?? '',
-    DateFormat('dd/MM/yyyy HH:mm').format(product.createdAt),
-    DateFormat('dd/MM/yyyy HH:mm').format(product.updatedAt),
+    DateFormat('dd/MM/yyyy HH:mm').format(DateTime.parse(product.createdAt)),
+    DateFormat('dd/MM/yyyy HH:mm').format(DateTime.parse(product.updatedAt)),
   ]);
 }
 

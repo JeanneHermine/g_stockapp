@@ -20,17 +20,17 @@ late TextEditingController _priceController;
 late TextEditingController _quantityController;
 late TextEditingController _minQuantityController;
 late TextEditingController _descriptionController;
-String _selectedCategory = ‘Électronique’;
+String _selectedCategory = 'Électronique';
 final List<String> _categories = [
-‘Électronique’,
-‘Vêtements’,
-‘Chaussures’,
-‘Accessoires’,
-‘Alimentation’,
-‘Beauté’,
-‘Sports’,
-‘Maison’,
-‘Autre’,
+'Électronique',
+'Vêtements',
+'Chaussures',
+'Accessoires',
+'Alimentation',
+'Beauté',
+'Sports',
+'Maison',
+'Autre',
 ];
 
 @override
@@ -39,13 +39,13 @@ super.initState();
 _nameController = TextEditingController(text: widget.product?.name);
 _barcodeController = TextEditingController(text: widget.product?.barcode);
 _priceController = TextEditingController(
-text: widget.product?.price.toString() ?? ‘’,
+text: widget.product?.price.toString() ?? '',
 );
 _quantityController = TextEditingController(
-text: widget.product?.quantity.toString() ?? ‘0’,
+text: widget.product?.quantity.toString() ?? '0',
 );
 _minQuantityController = TextEditingController(
-text: widget.product?.minQuantity.toString() ?? ‘5’,
+text: widget.product?.minQuantity.toString() ?? '5',
 );
 _descriptionController = TextEditingController(
 text: widget.product?.description,
@@ -82,8 +82,8 @@ final product = Product(
   description: _descriptionController.text.isEmpty
       ? null
       : _descriptionController.text,
-  createdAt: widget.product?.createdAt ?? now,
-  updatedAt: now,
+  createdAt: widget.product?.createdAt ?? now.toIso8601String(),
+  updatedAt: now.toIso8601String(),
 );
 
 try {
@@ -125,7 +125,7 @@ Widget build(BuildContext context) {
 return Scaffold(
 appBar: AppBar(
 title: Text(
-widget.product == null ? ‘Nouveau produit’ : ‘Modifier produit’,
+widget.product == null ? 'Nouveau produit' : 'Modifier produit',
 ),
 actions: [
 IconButton(
@@ -146,19 +146,19 @@ child: Column(
 crossAxisAlignment: CrossAxisAlignment.start,
 children: [
 Text(
-‘Informations générales’,
+'Informations générales',
 style: Theme.of(context).textTheme.titleLarge,
 ),
 const SizedBox(height: 16),
 TextFormField(
 controller: _nameController,
 decoration: const InputDecoration(
-labelText: ‘Nom du produit *’,
+labelText: 'Nom du produit *',
 prefixIcon: Icon(Icons.shopping_bag),
 ),
 validator: (value) {
 if (value == null || value.isEmpty) {
-return ‘Veuillez entrer un nom’;
+return 'Veuillez entrer un nom';
 }
 return null;
 },
@@ -167,12 +167,12 @@ const SizedBox(height: 16),
 TextFormField(
 controller: _barcodeController,
 decoration: const InputDecoration(
-labelText: ‘Code-barres *’,
+labelText: 'Code-barres *',
 prefixIcon: Icon(Icons.qr_code),
 ),
 validator: (value) {
 if (value == null || value.isEmpty) {
-return ‘Veuillez entrer un code-barres’;
+return 'Veuillez entrer un code-barres';
 }
 return null;
 },
@@ -181,7 +181,7 @@ const SizedBox(height: 16),
 DropdownButtonFormField<String>(
 initialValue: _selectedCategory,
 decoration: const InputDecoration(
-labelText: ‘Catégorie’,
+labelText: 'Catégorie',
 prefixIcon: Icon(Icons.category),
 ),
 items: _categories.map((category) {
@@ -200,7 +200,7 @@ const SizedBox(height: 16),
 TextFormField(
 controller: _descriptionController,
 decoration: const InputDecoration(
-labelText: ‘Description’,
+labelText: 'Description',
 prefixIcon: Icon(Icons.description),
 ),
 maxLines: 3,
@@ -217,14 +217,14 @@ child: Column(
 crossAxisAlignment: CrossAxisAlignment.start,
 children: [
 Text(
-‘Prix et stock’,
+'Prix et stock',
 style: Theme.of(context).textTheme.titleLarge,
 ),
 const SizedBox(height: 16),
 TextFormField(
 controller: _priceController,
 decoration: const InputDecoration(
-labelText: ‘Prix (€) *’,
+labelText: 'Prix (€) *',
 prefixIcon: Icon(Icons.euro),
 ),
 keyboardType: const TextInputType.numberWithOptions(
@@ -232,10 +232,10 @@ decimal: true,
 ),
 validator: (value) {
 if (value == null || value.isEmpty) {
-return ‘Veuillez entrer un prix’;
+return 'Veuillez entrer un prix';
 }
 if (double.tryParse(value) == null) {
-return ‘Prix invalide’;
+return 'Prix invalide';
 }
 return null;
 },
@@ -244,16 +244,16 @@ const SizedBox(height: 16),
 TextFormField(
 controller: _quantityController,
 decoration: const InputDecoration(
-labelText: ‘Quantité en stock *’,
+labelText: 'Quantité en stock *',
 prefixIcon: Icon(Icons.inventory),
 ),
 keyboardType: TextInputType.number,
 validator: (value) {
 if (value == null || value.isEmpty) {
-return ‘Veuillez entrer une quantité’;
+return 'Veuillez entrer une quantité';
 }
 if (int.tryParse(value) == null) {
-return ‘Quantité invalide’;
+return 'Quantité invalide';
 }
 return null;
 },
@@ -262,17 +262,17 @@ const SizedBox(height: 16),
 TextFormField(
 controller: _minQuantityController,
 decoration: const InputDecoration(
-labelText: ‘Stock minimum *’,
+labelText: 'Stock minimum *',
 prefixIcon: Icon(Icons.warning_amber),
-helperText: ‘Alerte si stock inférieur à cette valeur’,
+helperText: 'Alerte si stock inférieur à cette valeur',
 ),
 keyboardType: TextInputType.number,
 validator: (value) {
 if (value == null || value.isEmpty) {
-return ‘Veuillez entrer un stock minimum’;
+return 'Veuillez entrer un stock minimum';
 }
 if (int.tryParse(value) == null) {
-return ‘Valeur invalide’;
+return 'Valeur invalide';
 }
 return null;
 },
@@ -291,7 +291,7 @@ borderRadius: BorderRadius.circular(12),
 ),
 ),
 child: Text(
-widget.product == null ? ‘Ajouter le produit’ : ‘Enregistrer’,
+widget.product == null ? 'Ajouter le produit' : 'Enregistrer',
 style: const TextStyle(fontSize: 16),
 ),
 ),

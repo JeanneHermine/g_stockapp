@@ -49,4 +49,32 @@ class Product {
     'createdAt': createdAt,
     'updatedAt': updatedAt,
   };
+
+  bool get isLowStock => quantity <= minQuantity;
+
+  Product copyWith({
+    String? id,
+    String? name,
+    String? barcode,
+    String? category,
+    double? price,
+    int? quantity,
+    int? minQuantity,
+    String? description,
+    String? createdAt,
+    String? updatedAt,
+  }) {
+    return Product(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      barcode: barcode ?? this.barcode,
+      category: category ?? this.category,
+      price: price ?? this.price,
+      quantity: quantity ?? this.quantity,
+      minQuantity: minQuantity ?? this.minQuantity,
+      description: description ?? this.description,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 }

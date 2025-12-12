@@ -15,6 +15,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
 List<Product> _lowStockProducts = [];
 bool _isLoading = true;
 
+
 @override
 void initState() {
 super.initState();
@@ -158,7 +159,7 @@ return Card(
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: (urgencyLevel['color'] as Color).withOpacity(0.2),
+                    color: (urgencyLevel['color'] as Color).withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(

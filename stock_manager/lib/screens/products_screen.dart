@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "package:intl/intl.dart";
 import "package:stock_manager/database/database_helper.dart";
 import "package:stock_manager/models/product.dart";
+import "package:stock_manager/models/stock_movement.dart";
 import "package:stock_manager/screens/product_detail_screen.dart";
 import "package:stock_manager/screens/barcode_scanner_screen.dart";
 import "package:stock_manager/utils/export_helper.dart";
@@ -69,7 +70,7 @@ if (newQuantity < 0) return;
 
 final updatedProduct = product.copyWith(
   quantity: newQuantity,
-  updatedAt: DateTime.now(),
+  updatedAt: DateTime.now().toIso8601String(),
 );
 
 await DatabaseHelper.instance.updateProduct(updatedProduct);
@@ -81,7 +82,7 @@ await DatabaseHelper.instance.createStockMovement(
     quantityChange: change.abs(),
     type: change > 0 ? 'in' : 'out',
     reason: 'Ajustement manuel',
-    createdAt: DateTime.now(),
+    createdAt: DateTime.now().toIso8601String(),
   ),
 );
 
@@ -94,17 +95,17 @@ Future<void> _deleteProduct(Product product) async {
 final confirmed = await showDialog<bool>(
 context: context,
 builder: (context) => AlertDialog(
-title: const Text(‘Confirmer la suppression’),
-content: Text(‘Voulez-vous vraiment supprimer “${product.name}” ?’),
+title: const Text('Confirmer la suppression'),
+content: Text('Voulez-vous vraiment supprimer "${product.name}" ?'),
 actions: [
 TextButton(
 onPressed: () => Navigator.pop(context, false),
-child: const Text(‘Annuler’),
+child: const Text('Annuler'),
 ),
 TextButton(
 onPressed: () => Navigator.pop(context, true),
 style: TextButton.styleFrom(foregroundColor: Colors.red),
-child: const Text(‘Supprimer’),
+child: const Text('Supprimer'),
 ),
 ],
 ),
@@ -130,7 +131,7 @@ await ExportHelper.exportToCSV(_products);
 if (mounted) {
 ScaffoldMessenger.of(context).showSnackBar(
 const SnackBar(
-content: Text(‘Données exportées avec succès’),
+content: Text('Données exportées avec succès'),
 backgroundColor: Colors.green,
 ),
 );
@@ -139,7 +140,7 @@ backgroundColor: Colors.green,
 if (mounted) {
 ScaffoldMessenger.of(context).showSnackBar(
 const SnackBar(
-content: Text(‘Erreur lors de l'export’),
+content: Text('Erreur lors de l\'export'),
 backgroundColor: Colors.red,
 ),
 );
@@ -167,7 +168,7 @@ floatingActionButton: Column(
 mainAxisAlignment: MainAxisAlignment.end,
 children: [
 FloatingActionButton(
-heroTag: ‘scan’,
+heroTag: 'scan',
 onPressed: () async {
 final barcode = await Navigator.push<String>(
 context,
@@ -184,13 +185,13 @@ child: const Icon(Icons.qr_code_scanner),
 ),
 const SizedBox(height: 12),
 FloatingActionButton(
-heroTag: ‘export’,
+heroTag: 'export',
 onPressed: _exportData,
 child: const Icon(Icons.file_download),
 ),
 const SizedBox(height: 12),
 FloatingActionButton(
-heroTag: ‘add’,
+heroTag: 'add',
 onPressed: () async {
 await Navigator.push(
 context,
@@ -213,7 +214,7 @@ padding: const EdgeInsets.all(16),
 child: TextField(
 controller: _searchController,
 decoration: InputDecoration(
-hintText: ‘Rechercher par nom ou code-barres…’,
+hintText: 'Rechercher par nom ou code-barres...',
 prefixIcon: const Icon(Icons.search),
 suffixIcon: _searchController.text.isNotEmpty
 ? IconButton(
@@ -238,7 +239,7 @@ scrollDirection: Axis.horizontal,
 padding: const EdgeInsets.symmetric(horizontal: 16),
 children: [
 FilterChip(
-label: const Text(‘Tous’),
+label: const Text('Tous'),
 selected: _selectedCategory == null,
 onSelected: (selected) {
 setState(() {
@@ -248,7 +249,7 @@ _filterProducts();
 },
 ),
 const SizedBox(width: 8),
-…_categories.map((category) {
+..._categories.map((category) {
 return Padding(
 padding: const EdgeInsets.only(right: 8),
 child: FilterChip(
@@ -280,7 +281,7 @@ color: Colors.grey[400],
 ),
 const SizedBox(height: 16),
 Text(
-‘Aucun produit trouvé’,
+'Aucun produit trouvé',
 style: TextStyle(
 fontSize: 18,
 color: Colors.grey[600],
@@ -357,7 +358,7 @@ crossAxisAlignment: CrossAxisAlignment.end,
 children: [
 Text(
 NumberFormat.currency(
-symbol: ‘€’,
+symbol: '€',
 decimalDigits: 2,
 ).format(product.price),
 style: const TextStyle(
@@ -376,7 +377,7 @@ color: Colors.red[100],
 borderRadius: BorderRadius.circular(8),
 ),
 child: const Text(
-‘Stock faible’,
+'Stock faible',
 style: TextStyle(
 color: Colors.red,
 fontSize: 12,
@@ -392,7 +393,7 @@ Row(
 children: [
 Expanded(
 child: Text(
-‘Stock: ${product.quantity}’,
+'Stock: ${product.quantity}',
 style: TextStyle(
 color: product.isLowStock ? Colors.red : Colors.grey[700],
 fontWeight: FontWeight.w500,
