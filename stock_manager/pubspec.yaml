@@ -1,43 +1,49 @@
 name: stock_manager
 description: Application de gestion de stock pour boutiques
-publish_to: ‘none’
+publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-sdk: ‘>=3.0.0 <4.0.0’
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
-flutter:
-sdk: flutter
+  flutter:
+    sdk: flutter
 
-# Base de données
+  # State management
+  provider: ^6.0.5
 
-sqflite: ^2.3.0
-path: ^1.8.3
+  # Base de données
+  sqflite: ^2.3.0
+  path: ^1.8.3
 
-# UI & Graphiques
+  # UI & Graphiques
+  fl_chart: ^1.1.1
+  intl: ^0.20.2
 
-fl_chart: ^0.65.0
-intl: ^0.18.1
+  # Scanner de code-barres
+  mobile_scanner: ^6.0.0
 
-# Scanner de code-barres
+  # Export de données
+  csv: ^6.0.0
+  path_provider: ^2.1.1
+  share_plus: ^12.0.1
+  file_picker: ^10.3.7
 
-mobile_scanner: ^3.5.5
+  # Utils
+  uuid: ^4.2.2
 
-# Export de données
+  # Notifications
+  flutter_local_notifications: ^19.5.0
+  permission_handler: ^12.0.1
 
-csv: ^5.1.1
-path_provider: ^2.1.1
-share_plus: ^7.2.1
-
-# Utils
-
-uuid: ^4.2.2
+  # Shared preferences
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
-flutter_test:
-sdk: flutter
-flutter_lints: ^3.0.0
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
 
 flutter:
-uses-material-design: true
+  uses-material-design: true

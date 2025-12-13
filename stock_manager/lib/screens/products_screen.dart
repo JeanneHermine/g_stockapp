@@ -76,7 +76,7 @@ if (newQuantity < 0) return;
 
 final updatedProduct = product.copyWith(
   quantity: newQuantity,
-  updatedAt: DateTime.now().toIso8601String(),
+  updatedAt: DateTime.now(),
 );
 
 await DatabaseHelper.instance.updateProduct(updatedProduct);
@@ -174,7 +174,7 @@ if (quantity > 0) {
 final newQuantity = product.quantity + quantity;
 final updatedProduct = product.copyWith(
 quantity: newQuantity,
-updatedAt: DateTime.now().toIso8601String(),
+updatedAt: DateTime.now(),
 );
 
 await DatabaseHelper.instance.updateProduct(updatedProduct);
@@ -299,7 +299,7 @@ await DatabaseHelper.instance.createSale(sale);
 final newQuantity = product.quantity - quantity;
 final updatedProduct = product.copyWith(
 quantity: newQuantity,
-updatedAt: DateTime.now().toIso8601String(),
+updatedAt: DateTime.now(),
 );
 
 await DatabaseHelper.instance.updateProduct(updatedProduct);

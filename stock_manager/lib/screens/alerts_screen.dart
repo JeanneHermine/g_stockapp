@@ -195,10 +195,10 @@ return Card(
                     color: Colors.grey[200],
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Text(
-                    _categoryMap[product.categoryId] ?? 'Unknown',
-                    style: const TextStyle(fontSize: 12),
-                  ),
+                    child: Text(
+                      _categoryMap[product.categoryId] ?? 'Unknown',
+                      style: const TextStyle(fontSize: 12),
+                    ),
                 ),
               ],
             ),

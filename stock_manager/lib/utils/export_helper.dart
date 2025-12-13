@@ -36,8 +36,8 @@ class ExportHelper {
         product.quantity,
         product.minQuantity,
         product.description ?? '',
-        DateFormat('dd/MM/yyyy HH:mm').format(DateTime.parse(product.createdAt)),
-        DateFormat('dd/MM/yyyy HH:mm').format(DateTime.parse(product.updatedAt)),
+        DateFormat('dd/MM/yyyy HH:mm').format(product.createdAt),
+        DateFormat('dd/MM/yyyy HH:mm').format(product.updatedAt),
       ]);
     }
 
@@ -78,7 +78,9 @@ class ExportHelper {
 
       List<Product> products = [];
       final uuid = const Uuid();
-      final now = DateTime.now().toIso8601String();
+      
+      // Correction de l'erreur 95/96 : Utiliser un objet DateTime
+      final now = DateTime.now(); 
 
       for (var row in dataRows) {
         if (row.length >= 7) {
@@ -92,8 +94,8 @@ class ExportHelper {
               quantity: int.tryParse(row[5].toString()) ?? 0,
               minQuantity: int.tryParse(row[6].toString()) ?? 0,
               description: row.length > 7 ? row[7].toString() : null,
-              createdAt: now,
-              updatedAt: now,
+              createdAt: now, // Correction
+              updatedAt: now, // Correction
             );
             products.add(product);
           } catch (e) {

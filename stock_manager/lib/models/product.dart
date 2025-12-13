@@ -2,7 +2,7 @@ class Product {
 final String id;
 final String name;
 final String barcode;
-final String category;
+final String categoryId;
 final double price;
 final int quantity;
 final int minQuantity;
@@ -14,7 +14,7 @@ Product({
 required this.id,
 required this.name,
 required this.barcode,
-required this.category,
+required this.categoryId,
 required this.price,
 required this.quantity,
 required this.minQuantity,
@@ -30,7 +30,7 @@ return {
 'id': id,
 'name': name,
 'barcode': barcode,
-'category': category,
+'categoryId': categoryId,
 'price': price,
 'quantity': quantity,
 'minQuantity': minQuantity,
@@ -45,7 +45,7 @@ return Product(
 id: map['id'],
 name: map['name'],
 barcode: map['barcode'],
-category: map['category'],
+categoryId: map['categoryId'],
 price: map['price'],
 quantity: map['quantity'],
 minQuantity: map['minQuantity'],
@@ -59,7 +59,7 @@ Product copyWith({
 String? id,
 String? name,
 String? barcode,
-String? category,
+String? categoryId,
 double? price,
 int? quantity,
 int? minQuantity,
@@ -71,57 +71,13 @@ return Product(
 id: id ?? this.id,
 name: name ?? this.name,
 barcode: barcode ?? this.barcode,
-category: category ?? this.category,
+categoryId: categoryId ?? this.categoryId,
 price: price ?? this.price,
 quantity: quantity ?? this.quantity,
 minQuantity: minQuantity ?? this.minQuantity,
 description: description ?? this.description,
 createdAt: createdAt ?? this.createdAt,
 updatedAt: updatedAt ?? this.updatedAt,
-);
-}
-}
-
-class StockMovement {
-final String id;
-final String productId;
-final String productName;
-final int quantityChange;
-final String type; // ‘in’ or ‘out’
-final String? reason;
-final DateTime createdAt;
-
-StockMovement({
-required this.id,
-required this.productId,
-required this.productName,
-required this.quantityChange,
-required this.type,
-this.reason,
-required this.createdAt,
-});
-
-Map<String, dynamic> toMap() {
-return {
-'id': id,
-'productId': productId,
-'productName': productName,
-'quantityChange': quantityChange,
-'type': type,
-'reason': reason,
-'createdAt': createdAt.toIso8601String(),
-};
-}
-
-factory StockMovement.fromMap(Map<String, dynamic> map) {
-return StockMovement(
-id: map['id'],
-productId: map['productId'],
-productName: map['productName'],
-quantityChange: map['quantityChange'],
-type: map['type'],
-reason: map['reason'],
-createdAt: DateTime.parse(map['createdAt']),
 );
 }
 }

@@ -15,6 +15,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   bool _isLoading = true;
 
   @override
+  void initState() {
     super.initState();
     _loadMovements();
   }
@@ -111,7 +112,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: color.withOpacity(0.1),
+                        color: color.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(

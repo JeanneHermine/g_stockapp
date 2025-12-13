@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-CAimport 'package:provider/provider.dart';
+import 'package:provider/provider.dart';
 import 'package:stock_manager/providers/theme_provider.dart';
 import 'package:stock_manager/database/database_helper.dart';
 import 'package:stock_manager/screens/splash_screen.dart';
@@ -33,7 +33,7 @@ class StockManagerApp extends StatelessWidget {
               brightness: Brightness.light,
             ),
             useMaterial3: true,
-            cardTheme: CardTheme(
+            cardTheme: CardThemeData(
               elevation: 2,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
@@ -52,7 +52,7 @@ class StockManagerApp extends StatelessWidget {
               brightness: Brightness.dark,
             ),
             useMaterial3: true,
-            cardTheme: CardTheme(
+            cardTheme: CardThemeData(
               elevation: 2,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
