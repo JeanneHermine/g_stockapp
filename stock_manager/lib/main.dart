@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:stock_manager/providers/theme_provider.dart';
+import 'package:stock_manager/screens/splash_screen.dart';
 import 'package:stock_manager/screens/login_screen.dart';
+import 'package:stock_manager/screens/home_screen.dart';
 
 void main() {
   runApp(
@@ -24,7 +26,12 @@ class MyApp extends StatelessWidget {
           theme: themeProvider.lightTheme,
           darkTheme: themeProvider.darkTheme,
           themeMode: themeProvider.themeMode,
-          home: const LoginScreen(),
+          initialRoute: '/',
+          routes: {
+            '/': (context) => const SplashScreen(),
+            '/login': (context) => const LoginScreen(),
+            '/home': (context) => const HomeScreen(userName: 'Utilisateur'),
+          },
         );
       },
     );

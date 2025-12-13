@@ -5,22 +5,50 @@ import 'package:stock_manager/database/database_helper.dart';
 import 'package:stock_manager/models/product.dart';
 
 class StatisticsScreen extends StatefulWidget {
-const StatisticsScreen({super.key});
+  const StatisticsScreen({super.key});
 
-@override
-State<StatisticsScreen> createState() => _StatisticsScreenState();
+  @override
+  State<StatisticsScreen> createState() => _StatisticsScreenState();
 }
 
-class _StatisticsScreenState extends State<StatisticsScreen> {
-List<Product> _products = [];
-Map<String, String> _categoryMap = {};
-bool _isLoading = true;
+class _StatisticsScreenState extends State<StatisticsScreen>
+    with TickerProviderStateMixin {
+  List<Product> _products = [];
+  Map<String, String> _categoryMap = {};
+  bool _isLoading = true;
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<double> _scaleAnimation;
 
-@override
-void initState() {
-super.initState();
-_loadData();
-}
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOut,
+    ));
+    _scaleAnimation = Tween<double>(
+      begin: 0.8,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.elasticOut,
+    ));
+    _loadData();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
 Future<void> _loadData() async {
 setState(() => _isLoading = true);
@@ -32,6 +60,7 @@ _products = products;
 _categoryMap = categoryMap;
 _isLoading = false;
 });
+_animationController.forward(from: 0.0);
 }
 
 Map<String, int> _getCategoryCounts() {
@@ -145,7 +174,6 @@ Colors.red,
 ),
 ],
 ),
-],
 );
 }
 
@@ -155,29 +183,65 @@ String value,
 IconData icon,
 Color color,
 ) {
-return Card(
+return FadeTransition(
+opacity: _fadeAnimation,
+child: ScaleTransition(
+scale: _scaleAnimation,
+child: Card(
+elevation: 4,
+shadowColor: color.withOpacity(0.3),
+shape: RoundedRectangleBorder(
+borderRadius: BorderRadius.circular(16),
+),
+child: Container(
+decoration: BoxDecoration(
+borderRadius: BorderRadius.circular(16),
+gradient: LinearGradient(
+begin: Alignment.topLeft,
+end: Alignment.bottomRight,
+colors: [
+color.withOpacity(0.1),
+Colors.white,
+],
+),
+),
 child: Padding(
-padding: const EdgeInsets.all(16),
+padding: const EdgeInsets.all(20),
 child: Column(
 children: [
-Icon(icon, size: 32, color: color),
-const SizedBox(height: 8),
+Container(
+width: 60,
+height: 60,
+decoration: BoxDecoration(
+color: color.withOpacity(0.1),
+borderRadius: BorderRadius.circular(30),
+border: Border.all(color: color.withOpacity(0.3), width: 2),
+),
+child: Icon(icon, size: 32, color: color),
+),
+const SizedBox(height: 12),
 Text(
 value,
-style: const TextStyle(
-fontSize: 24,
-fontWeight: FontWeight.bold,
+style: TextStyle(
+fontSize: 28,
+fontWeight: FontWeight.w700,
+color: Theme.of(context).colorScheme.onSurface,
 ),
 ),
+const SizedBox(height: 4),
 Text(
 title,
 style: TextStyle(
-fontSize: 12,
+fontSize: 13,
+fontWeight: FontWeight.w500,
 color: Colors.grey[600],
 ),
 textAlign: TextAlign.center,
 ),
 ],
+),
+),
+),
 ),
 ),
 );
@@ -199,71 +263,132 @@ final colors = [
   Colors.amber,
 ];
 
-return Card(
-  child: Padding(
-    padding: const EdgeInsets.all(16),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Répartition par catégorie',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 24),
-        SizedBox(
-          height: 200,
-          child: PieChart(
-            PieChartData(
-              sectionsSpace: 2,
-              centerSpaceRadius: 40,
-              sections: categoryCounts.entries.map((entry) {
-                final index =
-                    categoryCounts.keys.toList().indexOf(entry.key);
-                final color = colors[index % colors.length];
-                final percentage =
-                    (entry.value / _getTotalProducts() * 100).toStringAsFixed(1);
-                return PieChartSectionData(
-                  value: entry.value.toDouble(),
-                  title: '$percentage%',
-                  color: color,
-                  radius: 80,
-                  titleStyle: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: categoryCounts.entries.map((entry) {
-            final index = categoryCounts.keys.toList().indexOf(entry.key);
-            final color = colors[index % colors.length];
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 16,
-                  height: 16,
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Text('${entry.key}: ${entry.value}'),
-              ],
-            );
-          }).toList(),
-        ),
-      ],
-    ),
-  ),
+return FadeTransition(
+opacity: _fadeAnimation,
+child: Card(
+elevation: 4,
+shadowColor: Colors.blue.withOpacity(0.3),
+shape: RoundedRectangleBorder(
+borderRadius: BorderRadius.circular(16),
+),
+child: Container(
+decoration: BoxDecoration(
+borderRadius: BorderRadius.circular(16),
+gradient: LinearGradient(
+begin: Alignment.topLeft,
+end: Alignment.bottomRight,
+colors: [
+Colors.blue.withOpacity(0.05),
+Colors.white,
+],
+),
+),
+child: Padding(
+padding: const EdgeInsets.all(20),
+child: Column(
+crossAxisAlignment: CrossAxisAlignment.start,
+children: [
+Row(
+children: [
+Icon(Icons.pie_chart, color: Theme.of(context).colorScheme.primary),
+const SizedBox(width: 8),
+Text(
+'Répartition par catégorie',
+style: Theme.of(context).textTheme.titleLarge?.copyWith(
+fontWeight: FontWeight.w600,
+),
+),
+],
+),
+const SizedBox(height: 24),
+SizedBox(
+height: 220,
+child: PieChart(
+PieChartData(
+sectionsSpace: 3,
+centerSpaceRadius: 50,
+centerSpaceColor: Colors.transparent,
+sections: categoryCounts.entries.map((entry) {
+final index = categoryCounts.keys.toList().indexOf(entry.key);
+final color = colors[index % colors.length];
+final percentage = (entry.value / _getTotalProducts() * 100).toStringAsFixed(1);
+return PieChartSectionData(
+value: entry.value.toDouble(),
+title: '$percentage%',
+color: color,
+radius: 85,
+titleStyle: const TextStyle(
+fontSize: 14,
+fontWeight: FontWeight.w600,
+color: Colors.white,
+shadows: [
+Shadow(
+color: Colors.black26,
+blurRadius: 2,
+offset: Offset(1, 1),
+),
+],
+),
+badgeWidget: Container(
+width: 8,
+height: 8,
+decoration: BoxDecoration(
+color: Colors.white,
+shape: BoxShape.circle,
+border: Border.all(color: color, width: 2),
+),
+),
+badgePositionPercentageOffset: 1.1,
+);
+}).toList(),
+),
+),
+),
+const SizedBox(height: 20),
+Wrap(
+spacing: 12,
+runSpacing: 8,
+children: categoryCounts.entries.map((entry) {
+final index = categoryCounts.keys.toList().indexOf(entry.key);
+final color = colors[index % colors.length];
+return Container(
+padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+decoration: BoxDecoration(
+color: color.withOpacity(0.1),
+borderRadius: BorderRadius.circular(20),
+border: Border.all(color: color.withOpacity(0.3), width: 1),
+),
+child: Row(
+mainAxisSize: MainAxisSize.min,
+children: [
+Container(
+width: 12,
+height: 12,
+decoration: BoxDecoration(
+color: color,
+borderRadius: BorderRadius.circular(6),
+),
+),
+const SizedBox(width: 6),
+Text(
+'${entry.key}: ${entry.value}',
+style: TextStyle(
+fontSize: 13,
+fontWeight: FontWeight.w500,
+color: Theme.of(context).colorScheme.onSurface,
+),
+),
+),
+],
+),
+);
+}).toList(),
+),
+],
+),
+),
+),
+),
 );
 
 

@@ -14,14 +14,28 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   int _selectedIndex = 0;
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
 
   late final List<Widget> _screens;
 
   @override
   void initState() {
     super.initState();
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeInOut,
+    ));
+
     _screens = [
       const ProductsScreen(),
       const StatisticsScreen(),
@@ -29,6 +43,25 @@ class _HomeScreenState extends State<HomeScreen> {
       const AlertsScreen(),
       const HistoryScreen(),
     ];
+
+    _fadeController.forward();
+  }
+
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    super.dispose();
+  }
+
+  void _onDestinationSelected(int index) {
+    if (_selectedIndex != index) {
+      _fadeController.reverse().then((_) {
+        setState(() {
+          _selectedIndex = index;
+        });
+        _fadeController.forward();
+      });
+    }
   }
 
   @override
@@ -61,14 +94,13 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: _screens[_selectedIndex],
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: _screens[_selectedIndex],
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
-        onDestinationSelected: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
+        onDestinationSelected: _onDestinationSelected,
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.inventory_2_outlined),
