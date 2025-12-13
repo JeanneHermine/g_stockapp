@@ -1,32 +1,54 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:stock_manager/providers/theme_provider.dart';
+import 'package:stock_manager/database/database_helper.dart';
 import 'package:stock_manager/screens/login_screen.dart';
 
-void main() {
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => ThemeProvider(),
-      child: const MyApp(),
-    ),
-  );
+void main() async {
+WidgetsFlutterBinding.ensureInitialized();
+await DatabaseHelper.instance.database;
+runApp(const StockManagerApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class StockManagerApp extends StatelessWidget {
+const StockManagerApp({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<ThemeProvider>(
-      builder: (context, themeProvider, child) {
-        return MaterialApp(
-          title: 'Stock Manager',
-          theme: themeProvider.lightTheme,
-          darkTheme: themeProvider.darkTheme,
-          themeMode: themeProvider.themeMode,
-          home: const LoginScreen(),
-        );
-      },
-    );
-  }
+@override
+Widget build(BuildContext context) {
+return MaterialApp(
+title: ‘Stock Manager’,
+debugShowCheckedModeBanner: false,
+theme: ThemeData(
+colorScheme: ColorScheme.fromSeed(
+seedColor: Colors.deepPurple,
+brightness: Brightness.light,
+),
+useMaterial3: true,
+cardTheme: CardTheme(
+elevation: 2,
+shape: RoundedRectangleBorder(
+borderRadius: BorderRadius.circular(16),
+),
+),
+inputDecorationTheme: InputDecorationTheme(
+filled: true,
+border: OutlineInputBorder(
+borderRadius: BorderRadius.circular(12),
+),
+),
+),
+darkTheme: ThemeData(
+colorScheme: ColorScheme.fromSeed(
+seedColor: Colors.deepPurple,
+brightness: Brightness.dark,
+),
+useMaterial3: true,
+cardTheme: CardTheme(
+elevation: 2,
+shape: RoundedRectangleBorder(
+borderRadius: BorderRadius.circular(16),
+),
+),
+),
+home: const LoginScreen(),
+);
+}
 }
