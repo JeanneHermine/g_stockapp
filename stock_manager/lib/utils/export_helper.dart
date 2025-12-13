@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'package:csv/csv.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:stock_manager/models/product.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 
 class ExportHelper {
   static Future<void> exportToCSV(List<Product> products) async {
@@ -29,7 +31,7 @@ class ExportHelper {
         product.id,
         product.name,
         product.barcode,
-        product.category,
+        product.categoryId,
         product.price,
         product.quantity,
         product.minQuantity,
@@ -56,5 +58,54 @@ class ExportHelper {
         subject: 'Export Stock Manager',
       ),
     );
+  }
+
+  static Future<List<Product>?> importFromCSV() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['csv'],
+    );
+
+    if (result != null) {
+      final file = File(result.files.single.path!);
+      final csvString = await file.readAsString();
+      final csvTable = const CsvToListConverter().convert(csvString);
+
+      if (csvTable.isEmpty) return null;
+
+      // Skip header row
+      final dataRows = csvTable.skip(1);
+
+      List<Product> products = [];
+      final uuid = const Uuid();
+      final now = DateTime.now().toIso8601String();
+
+      for (var row in dataRows) {
+        if (row.length >= 7) {
+          try {
+            final product = Product(
+              id: uuid.v4(),
+              name: row[1].toString(),
+              barcode: row[2].toString(),
+              categoryId: row[3].toString(),
+              price: double.tryParse(row[4].toString()) ?? 0.0,
+              quantity: int.tryParse(row[5].toString()) ?? 0,
+              minQuantity: int.tryParse(row[6].toString()) ?? 0,
+              description: row.length > 7 ? row[7].toString() : null,
+              createdAt: now,
+              updatedAt: now,
+            );
+            products.add(product);
+          } catch (e) {
+            // Skip invalid rows
+            continue;
+          }
+        }
+      }
+
+      return products;
+    }
+
+    return null;
   }
 }

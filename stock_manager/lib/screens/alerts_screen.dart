@@ -13,6 +13,7 @@ State<AlertsScreen> createState() => _AlertsScreenState();
 
 class _AlertsScreenState extends State<AlertsScreen> {
 List<Product> _lowStockProducts = [];
+Map<String, String> _categoryMap = {};
 bool _isLoading = true;
 
 @override
@@ -24,8 +25,11 @@ _loadData();
 Future<void> _loadData() async {
 setState(() => _isLoading = true);
 final products = await DatabaseHelper.instance.getLowStockProducts();
+final categories = await DatabaseHelper.instance.getCategories();
+final categoryMap = {for (var cat in categories) cat.id: cat.name};
 setState(() {
 _lowStockProducts = products;
+_categoryMap = categoryMap;
 _isLoading = false;
 });
 }
@@ -192,7 +196,7 @@ return Card(
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    product.category,
+                    _categoryMap[product.categoryId] ?? 'Unknown',
                     style: const TextStyle(fontSize: 12),
                   ),
                 ),

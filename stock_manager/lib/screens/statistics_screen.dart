@@ -13,6 +13,7 @@ State<StatisticsScreen> createState() => _StatisticsScreenState();
 
 class _StatisticsScreenState extends State<StatisticsScreen> {
 List<Product> _products = [];
+Map<String, String> _categoryMap = {};
 bool _isLoading = true;
 
 @override
@@ -24,8 +25,11 @@ _loadData();
 Future<void> _loadData() async {
 setState(() => _isLoading = true);
 final products = await DatabaseHelper.instance.getAllProducts();
+final categories = await DatabaseHelper.instance.getCategories();
+final categoryMap = {for (var cat in categories) cat.id: cat.name};
 setState(() {
 _products = products;
+_categoryMap = categoryMap;
 _isLoading = false;
 });
 }
@@ -33,7 +37,8 @@ _isLoading = false;
 Map<String, int> _getCategoryCounts() {
 final Map<String, int> counts = {};
 for (var product in _products) {
-counts[product.category] = (counts[product.category] ?? 0) + 1;
+final categoryName = _categoryMap[product.categoryId] ?? 'Unknown';
+counts[categoryName] = (counts[categoryName] ?? 0) + 1;
 }
 return counts;
 }
@@ -41,8 +46,9 @@ return counts;
 Map<String, double> _getCategoryValues() {
 final Map<String, double> values = {};
 for (var product in _products) {
-values[product.category] =
-(values[product.category] ?? 0) + (product.price * product.quantity);
+final categoryName = _categoryMap[product.categoryId] ?? 'Unknown';
+values[categoryName] =
+(values[categoryName] ?? 0) + (product.price * product.quantity);
 }
 return values;
 }

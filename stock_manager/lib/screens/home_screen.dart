@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:stock_manager/screens/alerts_screen.dart';
 import 'package:stock_manager/screens/history_screen.dart';
 import 'package:stock_manager/screens/products_screen.dart';
+import 'package:stock_manager/screens/sales_screen.dart';
 import 'package:stock_manager/screens/statistics_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -24,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _screens = [
       const ProductsScreen(),
       const StatisticsScreen(),
+      const SalesScreen(),
       const AlertsScreen(),
       const HistoryScreen(),
     ];
@@ -77,6 +79,11 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.bar_chart_outlined),
             selectedIcon: Icon(Icons.bar_chart),
             label: 'Statistiques',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.receipt_long_outlined),
+            selectedIcon: Icon(Icons.receipt_long),
+            label: 'Ventes',
           ),
           NavigationDestination(
             icon: Icon(Icons.warning_amber_outlined),

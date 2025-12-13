@@ -2,10 +2,14 @@ import "package:flutter/material.dart";
 import "package:intl/intl.dart";
 import "package:stock_manager/database/database_helper.dart";
 import "package:stock_manager/models/product.dart";
+import "package:stock_manager/models/sale.dart";
 import "package:stock_manager/models/stock_movement.dart";
+import "package:stock_manager/models/category.dart";
 import "package:stock_manager/screens/product_detail_screen.dart";
 import "package:stock_manager/screens/barcode_scanner_screen.dart";
 import "package:stock_manager/utils/export_helper.dart";
+import "package:stock_manager/services/notification_service.dart";
+import "package:uuid/uuid.dart";
 
 class ProductsScreen extends StatefulWidget {
 const ProductsScreen({super.key});
@@ -17,7 +21,8 @@ State<ProductsScreen> createState() => _ProductsScreenState();
 class _ProductsScreenState extends State<ProductsScreen> {
 List<Product> _products = [];
 List<Product> _filteredProducts = [];
-List<String> _categories = [];
+List<Category> _categories = [];
+Map<String, String> _categoryMap = {};
 String? _selectedCategory;
 final _searchController = TextEditingController();
 bool _isLoading = true;
@@ -43,6 +48,7 @@ setState(() {
 _products = products;
 _filteredProducts = products;
 _categories = categories;
+_categoryMap = {for (var cat in _categories) cat.id: cat.name};
 _isLoading = false;
 });
 } catch (e) {
@@ -57,7 +63,7 @@ final matchesSearch = _searchController.text.isEmpty ||
 product.name.toLowerCase().contains(_searchController.text.toLowerCase()) ||
 product.barcode.contains(_searchController.text);
 final matchesCategory = _selectedCategory == null ||
-product.category == _selectedCategory;
+_categoryMap[product.categoryId] == _selectedCategory;
 return matchesSearch && matchesCategory;
 }).toList();
 });
@@ -85,6 +91,9 @@ await DatabaseHelper.instance.createStockMovement(
     createdAt: DateTime.now().toIso8601String(),
   ),
 );
+
+// Send notification for stock movement
+await NotificationService().showStockMovementNotification(product.name, change.abs(), change > 0 ? 'in' : 'out');
 
 _loadData();
 
@@ -125,6 +134,205 @@ if (confirmed == true) {
 
 }
 
+Future<void> _buyProduct(Product product) async {
+final quantityController = TextEditingController(text: '1');
+final confirmed = await showDialog<bool>(
+context: context,
+builder: (context) => AlertDialog(
+title: const Text('Acheter produit'),
+content: Column(
+mainAxisSize: MainAxisSize.min,
+children: [
+Text('Quantité à acheter pour "${product.name}"'),
+const SizedBox(height: 16),
+TextField(
+controller: quantityController,
+keyboardType: TextInputType.number,
+decoration: const InputDecoration(
+labelText: 'Quantité',
+border: OutlineInputBorder(),
+),
+),
+],
+),
+actions: [
+TextButton(
+onPressed: () => Navigator.pop(context, false),
+child: const Text('Annuler'),
+),
+TextButton(
+onPressed: () => Navigator.pop(context, true),
+child: const Text('Acheter'),
+),
+],
+),
+);
+
+if (confirmed == true) {
+final quantity = int.tryParse(quantityController.text) ?? 0;
+if (quantity > 0) {
+final newQuantity = product.quantity + quantity;
+final updatedProduct = product.copyWith(
+quantity: newQuantity,
+updatedAt: DateTime.now().toIso8601String(),
+);
+
+await DatabaseHelper.instance.updateProduct(updatedProduct);
+await DatabaseHelper.instance.createStockMovement(
+StockMovement(
+id: const Uuid().v4(),
+productId: product.id,
+productName: product.name,
+quantityChange: quantity,
+type: 'in',
+reason: 'Achat',
+createdAt: DateTime.now().toIso8601String(),
+),
+);
+
+// Send notification for stock movement
+await NotificationService().showStockMovementNotification(product.name, quantity, 'in');
+
+_loadData();
+if (mounted) {
+ScaffoldMessenger.of(context).showSnackBar(
+SnackBar(content: Text('$quantity ${product.name} acheté(s)')),
+);
+}
+} else {
+if (mounted) {
+ScaffoldMessenger.of(context).showSnackBar(
+const SnackBar(content: Text('Quantité invalide')),
+);
+}
+}
+}
+}
+
+Future<void> _sellProduct(Product product) async {
+final quantityController = TextEditingController(text: '1');
+final customerNameController = TextEditingController();
+final customerPhoneController = TextEditingController();
+final notesController = TextEditingController();
+
+final confirmed = await showDialog<bool>(
+context: context,
+builder: (context) => AlertDialog(
+title: const Text('Vendre produit'),
+content: Column(
+mainAxisSize: MainAxisSize.min,
+children: [
+Text('Vendre "${product.name}"'),
+const SizedBox(height: 16),
+TextField(
+controller: quantityController,
+keyboardType: TextInputType.number,
+decoration: const InputDecoration(
+labelText: 'Quantité',
+border: OutlineInputBorder(),
+),
+),
+const SizedBox(height: 8),
+TextField(
+controller: customerNameController,
+decoration: const InputDecoration(
+labelText: 'Nom du client',
+border: OutlineInputBorder(),
+),
+),
+const SizedBox(height: 8),
+TextField(
+controller: customerPhoneController,
+keyboardType: TextInputType.phone,
+decoration: const InputDecoration(
+labelText: 'Téléphone du client (optionnel)',
+border: OutlineInputBorder(),
+),
+),
+const SizedBox(height: 8),
+TextField(
+controller: notesController,
+decoration: const InputDecoration(
+labelText: 'Notes (optionnel)',
+border: OutlineInputBorder(),
+),
+),
+],
+),
+actions: [
+TextButton(
+onPressed: () => Navigator.pop(context, false),
+child: const Text('Annuler'),
+),
+TextButton(
+onPressed: () => Navigator.pop(context, true),
+child: const Text('Vendre'),
+),
+],
+),
+);
+
+if (confirmed == true) {
+final quantity = int.tryParse(quantityController.text) ?? 0;
+final customerName = customerNameController.text.trim();
+
+if (quantity > 0 && customerName.isNotEmpty && quantity <= product.quantity) {
+final totalPrice = product.price * quantity;
+
+// Create sale
+final sale = Sale(
+id: const Uuid().v4(),
+productId: product.id,
+productName: product.name,
+quantity: quantity,
+unitPrice: product.price,
+totalPrice: totalPrice,
+customerName: customerName,
+customerPhone: customerPhoneController.text.trim().isEmpty ? null : customerPhoneController.text.trim(),
+notes: notesController.text.trim().isEmpty ? null : notesController.text.trim(),
+createdAt: DateTime.now().toIso8601String(),
+);
+
+await DatabaseHelper.instance.createSale(sale);
+
+// Update product quantity
+final newQuantity = product.quantity - quantity;
+final updatedProduct = product.copyWith(
+quantity: newQuantity,
+updatedAt: DateTime.now().toIso8601String(),
+);
+
+await DatabaseHelper.instance.updateProduct(updatedProduct);
+
+// Create stock movement
+await DatabaseHelper.instance.createStockMovement(
+StockMovement(
+id: const Uuid().v4(),
+productId: product.id,
+productName: product.name,
+quantityChange: quantity,
+type: 'out',
+reason: 'Vente',
+createdAt: DateTime.now().toIso8601String(),
+),
+);
+
+_loadData();
+if (mounted) {
+ScaffoldMessenger.of(context).showSnackBar(
+SnackBar(content: Text('$quantity ${product.name} vendu(s)')),
+);
+}
+} else {
+if (mounted) {
+ScaffoldMessenger.of(context).showSnackBar(
+const SnackBar(content: Text('Quantité invalide ou stock insuffisant')),
+);
+}
+}
+}
+}
+
 Future<void> _exportData() async {
 try {
 await ExportHelper.exportToCSV(_products);
@@ -141,6 +349,44 @@ if (mounted) {
 ScaffoldMessenger.of(context).showSnackBar(
 const SnackBar(
 content: Text('Erreur lors de l\'export'),
+backgroundColor: Colors.red,
+),
+);
+}
+}
+}
+
+Future<void> _importData() async {
+try {
+final products = await ExportHelper.importFromCSV();
+if (products != null && products.isNotEmpty) {
+for (var product in products) {
+await DatabaseHelper.instance.insertProduct(product);
+}
+_loadData();
+if (mounted) {
+ScaffoldMessenger.of(context).showSnackBar(
+SnackBar(
+content: Text('${products.length} produits importés avec succès'),
+backgroundColor: Colors.green,
+),
+);
+}
+} else {
+if (mounted) {
+ScaffoldMessenger.of(context).showSnackBar(
+const SnackBar(
+content: Text('Aucun produit valide trouvé dans le fichier'),
+backgroundColor: Colors.orange,
+),
+);
+}
+}
+} catch (e) {
+if (mounted) {
+ScaffoldMessenger.of(context).showSnackBar(
+const SnackBar(
+content: Text('Erreur lors de l\'import'),
 backgroundColor: Colors.red,
 ),
 );
@@ -188,6 +434,12 @@ FloatingActionButton(
 heroTag: 'export',
 onPressed: _exportData,
 child: const Icon(Icons.file_download),
+),
+const SizedBox(height: 12),
+FloatingActionButton(
+heroTag: 'import',
+onPressed: _importData,
+child: const Icon(Icons.file_upload),
 ),
 const SizedBox(height: 12),
 FloatingActionButton(
@@ -253,11 +505,11 @@ const SizedBox(width: 8),
 return Padding(
 padding: const EdgeInsets.only(right: 8),
 child: FilterChip(
-label: Text(category),
-selected: _selectedCategory == category,
+label: Text(category.name),
+selected: _selectedCategory == category.name,
 onSelected: (selected) {
 setState(() {
-_selectedCategory = selected ? category : null;
+_selectedCategory = selected ? category.name : null;
 _filterProducts();
 });
 },
@@ -344,7 +596,7 @@ fontWeight: FontWeight.bold,
 ),
 const SizedBox(height: 4),
 Text(
-product.category,
+_categoryMap[product.categoryId] ?? 'Unknown',
 style: TextStyle(
 color: Colors.grey[600],
 fontSize: 14,
@@ -399,6 +651,18 @@ color: product.isLowStock ? Colors.red : Colors.grey[700],
 fontWeight: FontWeight.w500,
 ),
 ),
+),
+IconButton(
+icon: const Icon(Icons.shopping_cart),
+onPressed: () => _buyProduct(product),
+color: Colors.green,
+tooltip: 'Acheter',
+),
+IconButton(
+icon: const Icon(Icons.sell),
+onPressed: () => _sellProduct(product),
+color: Colors.blue,
+tooltip: 'Vendre',
 ),
 IconButton(
 icon: const Icon(Icons.remove_circle_outline),

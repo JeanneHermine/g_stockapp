@@ -6,7 +6,9 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:stock_manager/models/product.dart';
+import 'package:stock_manager/models/sale.dart';
 import 'package:stock_manager/models/stock_movement.dart';
+import 'package:stock_manager/models/category.dart';
 import 'package:uuid/uuid.dart';
 
 /// Helper de gestion de la base de données SQLite
@@ -32,17 +34,28 @@ class DatabaseHelper {
 
   Future<void> _createDB(Database db, int version) async {
     await db.execute('''
+      CREATE TABLE categories (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        parentId TEXT,
+        description TEXT,
+        createdAt TEXT NOT NULL,
+        updatedAt TEXT NOT NULL
+      )
+    ''');
+    await db.execute('''
       CREATE TABLE products (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
         barcode TEXT NOT NULL,
-        category TEXT NOT NULL,
+        categoryId TEXT NOT NULL,
         price REAL NOT NULL,
         quantity INTEGER NOT NULL,
         minQuantity INTEGER NOT NULL,
         description TEXT,
         createdAt TEXT NOT NULL,
-        updatedAt TEXT NOT NULL
+        updatedAt TEXT NOT NULL,
+        FOREIGN KEY (categoryId) REFERENCES categories (id)
       )
     ''');
     await db.execute('''
@@ -65,6 +78,20 @@ class DatabaseHelper {
         createdAt TEXT NOT NULL
       )
     ''');
+    await db.execute('''
+      CREATE TABLE sales (
+        id TEXT PRIMARY KEY,
+        productId TEXT NOT NULL,
+        productName TEXT NOT NULL,
+        quantity INTEGER NOT NULL,
+        unitPrice REAL NOT NULL,
+        totalPrice REAL NOT NULL,
+        customerName TEXT NOT NULL,
+        customerPhone TEXT,
+        notes TEXT,
+        createdAt TEXT NOT NULL
+      )
+    ''');
     // Données de démonstration
     await _insertDemoData(db);
   }
@@ -73,12 +100,44 @@ class DatabaseHelper {
     final uuid = const Uuid();
     final now = DateTime.now();
 
+    // Insert demo categories
+    final electronicsId = uuid.v4();
+    final shoesId = uuid.v4();
+    final clothingId = uuid.v4();
+
+    await db.insert('categories', {
+      'id': electronicsId,
+      'name': 'Électronique',
+      'parentId': null,
+      'description': 'Produits électroniques',
+      'createdAt': now.toIso8601String(),
+      'updatedAt': now.toIso8601String(),
+    });
+
+    await db.insert('categories', {
+      'id': shoesId,
+      'name': 'Chaussures',
+      'parentId': null,
+      'description': 'Chaussures et accessoires',
+      'createdAt': now.toIso8601String(),
+      'updatedAt': now.toIso8601String(),
+    });
+
+    await db.insert('categories', {
+      'id': clothingId,
+      'name': 'Vêtements',
+      'parentId': null,
+      'description': 'Vêtements et accessoires',
+      'createdAt': now.toIso8601String(),
+      'updatedAt': now.toIso8601String(),
+    });
+
     final demoProducts = [
       {
         'id': uuid.v4(),
         'name': 'iPhone 15 Pro',
         'barcode': '1234567890123',
-        'category': 'Électronique',
+        'categoryId': electronicsId,
         'price': 1199.99,
         'quantity': 15,
         'minQuantity': 5,
@@ -90,7 +149,7 @@ class DatabaseHelper {
         'id': uuid.v4(),
         'name': 'Samsung Galaxy S24',
         'barcode': '2234567890123',
-        'category': 'Électronique',
+        'categoryId': electronicsId,
         'price': 999.99,
         'quantity': 3,
         'minQuantity': 5,
@@ -102,7 +161,7 @@ class DatabaseHelper {
         'id': uuid.v4(),
         'name': 'Nike Air Max',
         'barcode': '3234567890123',
-        'category': 'Chaussures',
+        'categoryId': shoesId,
         'price': 149.99,
         'quantity': 25,
         'minQuantity': 10,
@@ -114,7 +173,7 @@ class DatabaseHelper {
         'id': uuid.v4(),
         'name': 'Adidas Ultraboost',
         'barcode': '4234567890123',
-        'category': 'Chaussures',
+        'categoryId': shoesId,
         'price': 179.99,
         'quantity': 8,
         'minQuantity': 10,
@@ -126,7 +185,7 @@ class DatabaseHelper {
         'id': uuid.v4(),
         'name': 'T-Shirt Lacoste',
         'barcode': '5234567890123',
-        'category': 'Vêtements',
+        'categoryId': clothingId,
         'price': 59.99,
         'quantity': 50,
         'minQuantity': 20,
@@ -138,7 +197,7 @@ class DatabaseHelper {
         'id': uuid.v4(),
         'name': 'Jean Levi\'s 501',
         'barcode': '6234567890123',
-        'category': 'Vêtements',
+        'categoryId': clothingId,
         'price': 89.99,
         'quantity': 2,
         'minQuantity': 15,
@@ -150,7 +209,7 @@ class DatabaseHelper {
         'id': uuid.v4(),
         'name': 'MacBook Pro 14"',
         'barcode': '7234567890123',
-        'category': 'Électronique',
+        'categoryId': electronicsId,
         'price': 2399.99,
         'quantity': 5,
         'minQuantity': 3,
@@ -162,7 +221,7 @@ class DatabaseHelper {
         'id': uuid.v4(),
         'name': 'AirPods Pro 2',
         'barcode': '8234567890123',
-        'category': 'Électronique',
+        'categoryId': electronicsId,
         'price': 279.99,
         'quantity': 20,
         'minQuantity': 10,
@@ -192,6 +251,12 @@ class DatabaseHelper {
     final db = await database;
     await db.insert('products', product.toMap());
     return product.id;
+  }
+
+  /// Insère un produit
+  Future<int> insertProduct(Product product) async {
+    final db = await database;
+    return await db.insert('products', product.toMap());
   }
 
   /// Retourne tous les produits
@@ -260,12 +325,10 @@ class DatabaseHelper {
   }
 
   /// Retourne la liste des catégories
-  Future<List<String>> getCategories() async {
+  Future<List<Category>> getCategories() async {
     final db = await database;
-    final result = await db.rawQuery(
-      'SELECT DISTINCT category FROM products ORDER BY category ASC',
-    );
-    return result.map((map) => map['category'] as String).toList();
+    final result = await db.query('categories', orderBy: 'name ASC');
+    return result.map((map) => Category.fromMap(map)).toList();
   }
 
   // --- Section Mouvements de stock ---
@@ -324,6 +387,59 @@ class DatabaseHelper {
       'name': name,
       'createdAt': DateTime.now().toIso8601String(),
     });
+  }
+
+  // --- Section Ventes ---
+
+  /// Crée une vente
+  Future<String> createSale(Sale sale) async {
+    final db = await database;
+    await db.insert('sales', sale.toMap());
+    return sale.id;
+  }
+
+  /// Retourne toutes les ventes
+  Future<List<Sale>> getAllSales() async {
+    final db = await database;
+    final result = await db.query('sales', orderBy: 'createdAt DESC');
+    return result.map((map) => Sale.fromMap(map)).toList();
+  }
+
+  /// Retourne une vente par id
+  Future<Sale?> getSale(String id) async {
+    final db = await database;
+    final result = await db.query('sales', where: 'id = ?', whereArgs: [id]);
+    if (result.isEmpty) return null;
+    return Sale.fromMap(result.first);
+  }
+
+  /// Met à jour une vente
+  Future<int> updateSale(Sale sale) async {
+    final db = await database;
+    return await db.update(
+      'sales',
+      sale.toMap(),
+      where: 'id = ?',
+      whereArgs: [sale.id],
+    );
+  }
+
+  /// Supprime une vente
+  Future<int> deleteSale(String id) async {
+    final db = await database;
+    return await db.delete('sales', where: 'id = ?', whereArgs: [id]);
+  }
+
+  /// Recherche de ventes par client ou produit
+  Future<List<Sale>> searchSales(String query) async {
+    final db = await database;
+    final result = await db.query(
+      'sales',
+      where: 'customerName LIKE ? OR productName LIKE ?',
+      whereArgs: ['%$query%', '%$query%'],
+      orderBy: 'createdAt DESC',
+    );
+    return result.map((map) => Sale.fromMap(map)).toList();
   }
 
   /// Ferme la connexion à la base

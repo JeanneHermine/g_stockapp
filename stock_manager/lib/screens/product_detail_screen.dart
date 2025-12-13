@@ -20,18 +20,8 @@ late TextEditingController _priceController;
 late TextEditingController _quantityController;
 late TextEditingController _minQuantityController;
 late TextEditingController _descriptionController;
-String _selectedCategory = 'Électronique';
-final List<String> _categories = [
-'Électronique',
-'Vêtements',
-'Chaussures',
-'Accessoires',
-'Alimentation',
-'Beauté',
-'Sports',
-'Maison',
-'Autre',
-];
+String _selectedCategoryId = '';
+List<Map<String, String>> _categories = [];
 
 @override
 void initState() {
@@ -50,20 +40,23 @@ text: widget.product?.minQuantity.toString() ?? '5',
 _descriptionController = TextEditingController(
 text: widget.product?.description,
 );
-if (widget.product != null) {
-_selectedCategory = widget.product!.category;
-}
+_loadCategories();
 }
 
-@override
-void dispose() {
-_nameController.dispose();
-_barcodeController.dispose();
-_priceController.dispose();
-_quantityController.dispose();
-_minQuantityController.dispose();
-_descriptionController.dispose();
-super.dispose();
+Future<void> _loadCategories() async {
+  try {
+    final categories = await DatabaseHelper.instance.getCategories();
+    setState(() {
+      _categories = categories.map((cat) => {'id': cat.id, 'name': cat.name}).toList();
+      if (widget.product != null) {
+        _selectedCategoryId = widget.product!.categoryId;
+      } else if (_categories.isNotEmpty) {
+        _selectedCategoryId = _categories.first['id']!;
+      }
+    });
+  } catch (e) {
+    // Handle error if needed
+  }
 }
 
 Future<void> _saveProduct() async {
@@ -75,7 +68,7 @@ final product = Product(
   id: widget.product?.id ?? const Uuid().v4(),
   name: _nameController.text,
   barcode: _barcodeController.text,
-  category: _selectedCategory,
+  categoryId: _selectedCategoryId,
   price: double.parse(_priceController.text),
   quantity: int.parse(_quantityController.text),
   minQuantity: int.parse(_minQuantityController.text),
@@ -116,8 +109,6 @@ try {
     );
   }
 }
-
-
 }
 
 @override
@@ -179,20 +170,20 @@ return null;
 ),
 const SizedBox(height: 16),
 DropdownButtonFormField<String>(
-initialValue: _selectedCategory,
+initialValue: _selectedCategoryId,
 decoration: const InputDecoration(
 labelText: 'Catégorie',
 prefixIcon: Icon(Icons.category),
 ),
 items: _categories.map((category) {
 return DropdownMenuItem(
-value: category,
-child: Text(category),
+value: category['id'],
+child: Text(category['name']!),
 );
 }).toList(),
 onChanged: (value) {
 setState(() {
-_selectedCategory = value!;
+_selectedCategoryId = value!;
 });
 },
 ),
