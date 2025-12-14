@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # Ajoutez cette ligne pour corriger l'importation dans main.dart
+  sqflite_common_ffi: ^2.3.0
 
   # State management
   provider: ^6.0.5
@@ -22,13 +24,14 @@ dependencies:
   intl: ^0.20.2
 
   # Scanner de code-barres
-  mobile_scanner: ^6.0.0
-
+  mobile_scanner: ^7.1.4
   # Export de données
   csv: ^6.0.0
   path_provider: ^2.1.1
   share_plus: ^12.0.1
   file_picker: ^10.3.7
+  pdf: ^3.10.7
+  excel: ^4.0.3
 
   # Utils
   uuid: ^4.2.2

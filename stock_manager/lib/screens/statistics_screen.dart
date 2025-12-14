@@ -124,6 +124,8 @@ class _StatisticsScreenState extends State<StatisticsScreen>
           const SizedBox(height: 16),
           _buildValueChart(),
           const SizedBox(height: 16),
+          _buildHeatMap(),
+          const SizedBox(height: 16),
           _buildTopProducts(),
         ],
       ),
@@ -187,13 +189,13 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     IconData icon,
     Color color,
   ) {
+    final trend = _getTrendForTitle(title);
     return FadeTransition(
       opacity: _fadeAnimation,
       child: ScaleTransition(
         scale: _scaleAnimation,
         child: Card(
           elevation: 4,
-          // Correction 1
           shadowColor: _withAlpha(color, 0.3),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -205,7 +207,6 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  // Correction 2
                   _withAlpha(color, 0.1),
                   Colors.white,
                 ],
@@ -219,22 +220,31 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      // Correction 3
                       color: _withAlpha(color, 0.1),
                       borderRadius: BorderRadius.circular(30),
-                      // Correction 4
                       border: Border.all(color: _withAlpha(color, 0.3), width: 2),
                     ),
                     child: Icon(icon, size: 32, color: color),
                   ),
                   const SizedBox(height: 12),
-                  Text(
-                    value,
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w700,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        value,
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w700,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Icon(
+                        trend > 0 ? Icons.arrow_upward : trend < 0 ? Icons.arrow_downward : Icons.horizontal_rule,
+                        color: trend > 0 ? Colors.green : trend < 0 ? Colors.red : Colors.grey,
+                        size: 20,
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -274,7 +284,6 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       opacity: _fadeAnimation,
       child: Card(
         elevation: 4,
-        // Correction 5
         shadowColor: _withAlpha(Colors.blue, 0.3),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
@@ -286,7 +295,6 @@ class _StatisticsScreenState extends State<StatisticsScreen>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                // Correction 6
                 _withAlpha(Colors.blue, 0.05),
                 Colors.white,
               ],
@@ -344,6 +352,17 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                           ),
                         );
                       }).toList(),
+                      pieTouchData: PieTouchData(
+                        touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                          if (event is FlTapUpEvent && pieTouchResponse != null && pieTouchResponse.touchedSection != null) {
+                            final touchedIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
+                            if (touchedIndex >= 0 && touchedIndex < categoryCounts.length) {
+                              final categoryName = categoryCounts.keys.elementAt(touchedIndex);
+                              _showCategoryDetailsDialog(categoryName);
+                            }
+                          }
+                        },
+                      ),
                     ),
                   ),
                 ),
@@ -359,10 +378,8 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        // Correction 7
                         color: _withAlpha(color, 0.1),
                         borderRadius: BorderRadius.circular(20),
-                        // Correction 8
                         border: Border.all(
                             color: _withAlpha(color, 0.3), width: 1),
                       ),
@@ -541,6 +558,184 @@ class _StatisticsScreenState extends State<StatisticsScreen>
           ],
         ),
       ),
+    );
+  }
+
+  void _showCategoryDetailsDialog(String categoryName) {
+    final categoryProducts = _products.where((p) => _categoryMap[p.categoryId] == categoryName).toList();
+    final totalValue = categoryProducts.fold(0.0, (sum, p) => sum + (p.price * p.quantity));
+    final totalQuantity = categoryProducts.fold(0, (sum, p) => sum + p.quantity);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Détails de $categoryName'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Nombre de produits: ${categoryProducts.length}'),
+            Text('Quantité totale: $totalQuantity'),
+            Text('Valeur totale: ${NumberFormat.currency(symbol: '€').format(totalValue)}'),
+            const SizedBox(height: 16),
+            const Text('Produits:', style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 200,
+              child: ListView.builder(
+                itemCount: categoryProducts.length,
+                itemBuilder: (context, index) {
+                  final product = categoryProducts[index];
+                  return ListTile(
+                    title: Text(product.name),
+                    subtitle: Text('Quantité: ${product.quantity} - Prix: ${NumberFormat.currency(symbol: '€').format(product.price)}'),
+                    dense: true,
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Fermer'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  int _getTrendForTitle(String title) {
+    // Simulate trends since we don't have historical data
+    // In a real app, this would compare current vs previous period
+    switch (title) {
+      case 'Produits':
+        return 1; // Up trend
+      case 'Quantité totale':
+        return -1; // Down trend
+      case 'Valeur totale':
+        return 1; // Up trend
+      case 'Alertes stock':
+        return -1; // Down trend (good - fewer alerts)
+      default:
+        return 0; // No trend
+    }
+  }
+
+  Widget _buildHeatMap() {
+    // Simulate heat map data for sales by category and quantity
+    final categoryCounts = _getCategoryCounts();
+    if (categoryCounts.isEmpty) return const SizedBox();
+
+    final categories = categoryCounts.keys.toList();
+    final maxCount = categoryCounts.values.reduce((a, b) => a > b ? a : b);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Carte thermique - Produits par catégorie',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 16),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+              ),
+              itemCount: categories.length,
+              itemBuilder: (context, index) {
+                final category = categories[index];
+                final count = categoryCounts[category]!;
+                final intensity = count / maxCount;
+
+                Color heatColor;
+                if (intensity > 0.8) {
+                  heatColor = Colors.red;
+                } else if (intensity > 0.6) {
+                  heatColor = Colors.orange;
+                } else if (intensity > 0.4) {
+                  heatColor = Colors.yellow;
+                } else if (intensity > 0.2) {
+                  heatColor = Colors.lightGreen;
+                } else {
+                  heatColor = Colors.green;
+                }
+
+                return Container(
+                  decoration: BoxDecoration(
+                    color: heatColor,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          category,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        Text(
+                          count.toString(),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildHeatMapLegend('Faible', Colors.green),
+                const SizedBox(width: 8),
+                _buildHeatMapLegend('Moyen', Colors.yellow),
+                const SizedBox(width: 8),
+                _buildHeatMapLegend('Élevé', Colors.red),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeatMapLegend(String label, Color color) {
+    return Row(
+      children: [
+        Container(
+          width: 16,
+          height: 16,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 12),
+        ),
+      ],
     );
   }
 }

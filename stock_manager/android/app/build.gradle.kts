@@ -8,15 +8,16 @@ plugins {
 android {
     namespace = "com.example.stock_manager"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
+        jvmTarget = "1.8"
     }
 
     defaultConfig {
@@ -41,4 +42,8 @@ android {
 
 flutter {
     source = "../.."
+}
+dependencies {
+    // ... vos dépendances habituelles ...
+    implementation("com.android.tools:desugar_jdk_libs:2.0.4") // <-- AJOUTER ICI
 }
