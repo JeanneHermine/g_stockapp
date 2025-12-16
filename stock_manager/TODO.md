@@ -1,33 +1,59 @@
-# TODO: Implement Five Basic Functionalities
 
-## 1. Interactive Charts
-- [ ] Add click handlers to pie chart sections in statistics_screen.dart to show detailed breakdowns (e.g., product list for category)
-- [ ] Add click handlers to bar chart bars to show product details
-- [ ] Add tooltips or dialogs for detailed info on click
+# Stock ManagerTODO
 
-## 2. Custom Report Builder
-- [ ] Create new screen: lib/screens/report_builder_screen.dart
-- [ ] Implement drag-and-drop interface for selecting fields (product name, quantity, price, etc.)
-- [ ] Add filters (date range, category, etc.)
-- [ ] Generate and display custom reports
+1.Graphiques Interactifs
+[ ] Ajouter des gestionnaires de clic aux sections du graphique circulaire dans statistics_screen.dart pour afficher des ventilations détaillées (par exemple, la liste des produits pour une catégorie).
 
-## 3. Heat Maps
-- [ ] Add heat map widget to statistics_screen.dart using fl_chart or new package
-- [ ] Visualize sales data by time (hour/day) and location (if available, or category as proxy)
-- [ ] Color-code intensity based on sales volume
+[ ] Ajouter des gestionnaires de clic aux barres du graphique à barres pour afficher les détails du produit.
 
-## 4. Trend Indicators
-- [ ] Add trend calculation logic (compare current vs previous period)
-- [ ] Add arrow/icons to charts and stats cards showing up/down trends
-- [ ] Update statistics_screen.dart with trend indicators
+[ ] Ajouter des info-bulles (tooltips) ou des boîtes de dialogue pour des informations détaillées au clic.
 
-## 5. Export to PDF/Excel
-- [ ] Add pdf and excel dependencies to pubspec.yaml
-- [ ] Extend export_helper.dart to support PDF export with formatting
-- [ ] Extend export_helper.dart to support Excel export with formatting
-- [ ] Add export buttons to statistics and report builder screens
+2.Constructeur de Rapports Personnalisés
+[ ] Créer un nouvel écran : lib/screens/report_builder_screen.dart.
 
-## General
-- [ ] Update pubspec.yaml with new dependencies if needed
-- [ ] Test all implementations to ensure no errors in existing files
-- [ ] Ensure all new code integrates seamlessly without breaking existing functionality
+[ ] Implémenter une interface de glisser-déposer pour la sélection des champs (nom du produit, quantité, prix, etc.).
+
+[ ] Ajouter des filtres (plage de dates, catégorie, etc.).
+
+[ ] Générer et afficher les rapports personnalisés.
+
+3.Cartes Thermiques (Heat Maps)
+[ ] Ajouter un widget de carte thermique à statistics_screen.dart en utilisant fl_chart ou un nouveau package.
+
+[ ] Visualiser les données de ventes par heure/jour et par emplacement (si disponible, ou catégorie comme substitut).
+
+[ ] Coder l'intensité par couleur en fonction du volume des ventes.
+
+4.Indicateurs de Tendance
+[ ] Ajouter la logique de calcul de tendance (comparer la période actuelle à la période précédente).
+
+[ ] Ajouter des flèches/icônes aux graphiques et aux cartes de statistiques montrant les tendances à la hausse/à la baisse.
+
+[ ] Mettre à jour statistics_screen.dart avec des indicateurs de tendance.
+
+5.Exportation au format PDF/Excel
+[ ] Ajouter les dépendances pdf et excel à pubspec.yaml.
+
+[ ] Étendre export_helper.dart pour prendre en charge l'exportation PDF avec formatage.
+
+[ ] Étendre export_helper.dart pour prendre en charge l'exportation Excel avec formatage.
+
+[ ] Ajouter des boutons d'exportation aux écrans de statistiques et de construction de rapports.
+
+Persistance des Données et Améliorations de l'Interface Utilisateur
+[x] Ajouter des mouvements de stock et des ventes de démonstration à database_helper.dart pour peupler les données initiales.
+
+[x] Mettre à jour history_screen.dart pour utiliser des couleurs neutres (par exemple, des tons de gris) au lieu du vert/rouge vif.
+
+[x] Mettre à jour sales_screen.dart pour supprimer le dégradé vert et utiliser des couleurs neutres pour la carte de résumé et les icônes.
+
+[x] Mettre à jour le thème de main.dart pour utiliser une couleur de base (seed color) plus neutre (par exemple, bleu-gris) pour un look professionnel.
+
+[x] Tester l'application pour s'assurer qu'il n'y a pas d'erreurs et que les données persistent après les redémarrages.
+
+Général
+[ ] Mettre à jour pubspec.yaml avec les nouvelles dépendances si nécessaire.
+
+[ ] Tester toutes les implémentations pour s'assurer qu'il n'y a pas d'erreurs dans les fichiers existants.
+
+[ ] S'assurer que tout nouveau code s'intègre parfaitement sans casser les fonctionnalités existantes,

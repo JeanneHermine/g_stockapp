@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <issue id="UnsupportedAppsScript" severity="ignore" />
+    <issue id="CssInvalidPropertyValue" severity="ignore" />
+    <issue id="HardcodedText" severity="ignore" />
+    <issue id="MissingTranslation" severity="ignore" />
+    <issue id="NonResizeableActivity" severity="ignore" />
+
+    <issue id="MissingVersion" severity="ignore" />
+    <issue id="UnknownIdInLayout" severity="ignore" />
+    <issue id="NonConstantResourceId" severity="ignore" />
+    <issue id="IncompatibleAPI" severity="ignore" />
+    <issue id="NewerVersionAvailable" severity="ignore" />
+</lint>

@@ -38,12 +38,18 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+    lint {
+        // Indique à Gradle d'utiliser le fichier lint.xml pour les exclusions
+        lintConfig = file("lint.xml")
+    }
 }
+
 
 flutter {
     source = "../.."
 }
 dependencies {
     // ... vos dépendances habituelles ...
-    implementation("com.android.tools:desugar_jdk_libs:2.0.4") // <-- AJOUTER ICI
+    //implementation("com.android.tools:desugar_jdk_libs:2.0.4") // <-- AJOUTER ICI
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }

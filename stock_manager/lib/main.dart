@@ -4,11 +4,13 @@ import 'dart:io';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
 import 'package:stock_manager/providers/theme_provider.dart';
-
+import 'package:flutter/foundation.dart' show kIsWeb; // AJOUTER kIsWeb
 //import 'package:stock_manager/database/database_helper.dart';
 import 'package:stock_manager/screens/splash_screen.dart';
 import 'package:stock_manager/screens/login_screen.dart';
 import 'package:stock_manager/screens/home_screen.dart';
+
+
 
 // Créez une instance globale ou accédez à l'instance de votre service de notification
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -18,10 +20,13 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+ // On n'initialise sqflite_ffi que si on n'est PAS sur le Web
+if (!kIsWeb) {
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
   }
+}
   
   // 1. Définir un GUID (Identifiant unique) et un AppUserModelId
   const String appGuid =
@@ -35,10 +40,11 @@ Future<void> main() async {
     guid: appGuid,
   );
 
+  // **CORRECTION VALIDÉE**
   const initializationSettings = InitializationSettings(
     windows: initializationSettingsWindows,
-    // Ajoutez des configurations pour Android et iOS si vous lancez sur mobile :
-    // android: initializationSettingsAndroid,
+    // AJOUTÉ : Utilise l'icône Android par défaut pour la notification
+    android: AndroidInitializationSettings('ic_launcher'), 
     // iOS: initializationSettingsIOS,
   );
 
@@ -71,37 +77,59 @@ class StockManagerApp extends StatelessWidget {
           title: 'Stock Manager',
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
-            // ... (votre thème clair)
+            // Professional neutral theme
             colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.deepPurple,
+              seedColor: Colors.blueGrey,
               brightness: Brightness.light,
             ),
             useMaterial3: true,
             cardTheme: CardThemeData(
-              elevation: 2,
+              elevation: 4,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(20),
               ),
+              shadowColor: Colors.blueGrey.withValues(alpha: 0.1),
             ),
             inputDecorationTheme: InputDecorationTheme(
               filled: true,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
+              fillColor: Colors.blueGrey.shade50,
+            ),
+            appBarTheme: AppBarTheme(
+              elevation: 0,
+              backgroundColor: Colors.blueGrey.shade50,
+              foregroundColor: Colors.blueGrey.shade900,
+              surfaceTintColor: Colors.transparent,
             ),
           ),
           darkTheme: ThemeData(
-            // ... (votre thème sombre)
+            // Professional neutral dark theme
             colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.deepPurple,
+              seedColor: Colors.blueGrey,
               brightness: Brightness.dark,
             ),
             useMaterial3: true,
             cardTheme: CardThemeData(
-              elevation: 2,
+              elevation: 4,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(20),
               ),
+              shadowColor: Colors.blueGrey.withValues(alpha: 0.2),
+            ),
+            inputDecorationTheme: InputDecorationTheme(
+              filled: true,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              fillColor: Colors.blueGrey.shade900,
+            ),
+            appBarTheme: AppBarTheme(
+              elevation: 0,
+              backgroundColor: Colors.blueGrey.shade900,
+              foregroundColor: Colors.blueGrey.shade100,
+              surfaceTintColor: Colors.transparent,
             ),
           ),
           themeMode: themeProvider.themeMode, // Utilisation correcte du thème

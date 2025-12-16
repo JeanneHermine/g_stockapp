@@ -1,8 +1,8 @@
 // Assurez-vous d'ajouter dans pubspec.yaml :
 // dependencies:
-//   sqflite: ^2.0.0+4
-//   path: ^1.8.0
-//   uuid: ^3.0.0
+//   sqflite: ^2.0.0+4
+//   path: ^1.8.0
+//   uuid: ^3.0.0
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:stock_manager/models/product.dart';
@@ -93,6 +93,22 @@ class DatabaseHelper {
       )
     ''');
     // Données de démonstration
+    // L'appel à la fonction de vérification est conservé.
+    await _insertDemoDataIfEmpty(db); 
+  }
+
+  // Cette fonction est maintenant correctement référencée
+  Future<void> _insertDemoDataIfEmpty(Database db) async {
+    // Vérifier si des données existent déjà
+    final existingCategories = await db.query('categories');
+    final existingProducts = await db.query('products');
+    final existingUsers = await db.query('users');
+
+    if (existingCategories.isNotEmpty || existingProducts.isNotEmpty || existingUsers.isNotEmpty) {
+      // La base de données contient déjà des données, ne pas insérer les données de démonstration
+      return;
+    }
+
     await _insertDemoData(db);
   }
 
@@ -234,6 +250,125 @@ class DatabaseHelper {
     for (var product in demoProducts) {
       await db.insert('products', product);
     }
+
+    // Demo stock movements
+    final demoMovements = [
+      {
+        'id': uuid.v4(),
+        'productId': demoProducts[0]['id'], // iPhone 15 Pro
+        'productName': 'iPhone 15 Pro',
+        'quantityChange': 5,
+        'type': 'in',
+        'reason': 'Réception fournisseur',
+        'createdAt': now.subtract(const Duration(days: 5)).toIso8601String(),
+      },
+      {
+        'id': uuid.v4(),
+        'productId': demoProducts[0]['id'], // iPhone 15 Pro
+        'productName': 'iPhone 15 Pro',
+        'quantityChange': 2,
+        'type': 'out',
+        'reason': 'Vente',
+        'createdAt': now.subtract(const Duration(days: 3)).toIso8601String(),
+      },
+      {
+        'id': uuid.v4(),
+        'productId': demoProducts[1]['id'], // Samsung Galaxy S24
+        'productName': 'Samsung Galaxy S24',
+        'quantityChange': 3,
+        'type': 'in',
+        'reason': 'Réception fournisseur',
+        'createdAt': now.subtract(const Duration(days: 4)).toIso8601String(),
+      },
+      {
+        'id': uuid.v4(),
+        'productId': demoProducts[2]['id'], // Nike Air Max
+        'productName': 'Nike Air Max',
+        'quantityChange': 10,
+        'type': 'in',
+        'reason': 'Réception fournisseur',
+        'createdAt': now.subtract(const Duration(days: 2)).toIso8601String(),
+      },
+      {
+        'id': uuid.v4(),
+        'productId': demoProducts[2]['id'], // Nike Air Max
+        'productName': 'Nike Air Max',
+        'quantityChange': 5,
+        'type': 'out',
+        'reason': 'Vente',
+        'createdAt': now.subtract(const Duration(days: 1)).toIso8601String(),
+      },
+      {
+        'id': uuid.v4(),
+        'productId': demoProducts[3]['id'], // Adidas Ultraboost
+        'productName': 'Adidas Ultraboost',
+        'quantityChange': 8,
+        'type': 'in',
+        'reason': 'Réception fournisseur',
+        'createdAt': now.subtract(const Duration(days: 6)).toIso8601String(),
+      },
+    ];
+
+    for (var movement in demoMovements) {
+      await db.insert('stock_movements', movement);
+    }
+
+    // Demo sales
+    final demoSales = [
+      {
+        'id': uuid.v4(),
+        'productId': demoProducts[0]['id'], // iPhone 15 Pro
+        'productName': 'iPhone 15 Pro',
+        'quantity': 1,
+        'unitPrice': 1199.99,
+        'totalPrice': 1199.99,
+        'customerName': 'Jean Dupont',
+        'customerPhone': '0123456789',
+        'notes': 'Paiement en espèces',
+        'createdAt': now.subtract(const Duration(days: 3)).toIso8601String(),
+      },
+      {
+        'id': uuid.v4(),
+        'productId': demoProducts[2]['id'], // Nike Air Max
+        'productName': 'Nike Air Max',
+        'quantity': 2,
+        'unitPrice': 149.99,
+        'totalPrice': 299.98,
+        'customerName': 'Marie Martin',
+        'customerPhone': '0987654321',
+        'notes': 'Paiement par carte',
+        'createdAt': now.subtract(const Duration(days: 2)).toIso8601String(),
+      },
+      {
+        'id': uuid.v4(),
+        'productId': demoProducts[4]['id'], // T-Shirt Lacoste
+        'productName': 'T-Shirt Lacoste',
+        'quantity': 3,
+        'unitPrice': 59.99,
+        'totalPrice': 179.97,
+        'customerName': 'Pierre Durand',
+        'customerPhone': null,
+        'notes': 'Vente en ligne',
+        'createdAt': now.subtract(const Duration(days: 1)).toIso8601String(),
+      },
+      {
+        'id': uuid.v4(),
+        'productId': demoProducts[6]['id'], // MacBook Pro 14"
+        'productName': 'MacBook Pro 14"',
+        'quantity': 1,
+        'unitPrice': 2399.99,
+        'totalPrice': 2399.99,
+        'customerName': 'Sophie Leroy',
+        'customerPhone': '0567890123',
+        'notes': 'Paiement différé',
+        'createdAt': now.subtract(const Duration(days: 4)).toIso8601String(),
+      },
+    ];
+
+    for (var sale in demoSales) {
+      await db.insert('sales', sale);
+    }
+
     // Utilisateur de démonstration
     await db.insert('users', {
       'id': uuid.v4(),
@@ -329,6 +464,38 @@ class DatabaseHelper {
     final db = await database;
     final result = await db.query('categories', orderBy: 'name ASC');
     return result.map((map) => Category.fromMap(map)).toList();
+  }
+
+  /// Crée une catégorie
+  Future<String> createCategory(Category category) async {
+    final db = await database;
+    await db.insert('categories', category.toMap());
+    return category.id;
+  }
+
+  /// Met à jour une catégorie
+  Future<int> updateCategory(Category category) async {
+    final db = await database;
+    return await db.update(
+      'categories',
+      category.toMap(),
+      where: 'id = ?',
+      whereArgs: [category.id],
+    );
+  }
+
+  /// Supprime une catégorie
+  Future<int> deleteCategory(String id) async {
+    final db = await database;
+    return await db.delete('categories', where: 'id = ?', whereArgs: [id]);
+  }
+
+  /// Retourne une catégorie par id
+  Future<Category?> getCategory(String id) async {
+    final db = await database;
+    final result = await db.query('categories', where: 'id = ?', whereArgs: [id]);
+    if (result.isEmpty) return null;
+    return Category.fromMap(result.first);
   }
 
   // --- Section Mouvements de stock ---

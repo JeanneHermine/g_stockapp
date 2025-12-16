@@ -79,7 +79,7 @@ class _SplashScreenState extends State<SplashScreen>
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.2),
+                            color: Colors.black.withAlpha(51),
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),
@@ -110,8 +110,7 @@ class _SplashScreenState extends State<SplashScreen>
                       // Correction 2: Utilisation de innerContext pour le style de texte
                       style:
                           Theme.of(innerContext).textTheme.bodyLarge?.copyWith(
-                                color: Colors.white.withValues(alpha: 0.8),
-                              ),
+                                color: Colors.white.withAlpha(204))
                     ),
                     const SizedBox(height: 48),
                     SizedBox(
@@ -120,11 +119,13 @@ class _SplashScreenState extends State<SplashScreen>
                       child: CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(
                           // Correction 3: Utilisation de withValues
-                          Colors.white.withValues(alpha: 0.8),
+                          Colors.white.withAlpha(204),
                         ),
                         strokeWidth: 3,
+                      
                       ),
                     ),
+                    
                   ],
                 ),
               ),
@@ -134,4 +135,4 @@ class _SplashScreenState extends State<SplashScreen>
       },
     );
   }
-}
+} 

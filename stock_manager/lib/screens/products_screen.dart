@@ -394,6 +394,98 @@ backgroundColor: Colors.red,
 }
 }
 
+Future<void> _addNewCategory() async {
+final categoryNameController = TextEditingController();
+final categoryDescriptionController = TextEditingController();
+
+final confirmed = await showDialog<bool>(
+context: context,
+builder: (context) => AlertDialog(
+title: const Text('Ajouter une nouvelle catégorie'),
+content: Column(
+mainAxisSize: MainAxisSize.min,
+children: [
+TextField(
+controller: categoryNameController,
+decoration: const InputDecoration(
+labelText: 'Nom de la catégorie *',
+border: OutlineInputBorder(),
+),
+autofocus: true,
+),
+const SizedBox(height: 16),
+TextField(
+controller: categoryDescriptionController,
+decoration: const InputDecoration(
+labelText: 'Description (optionnel)',
+border: OutlineInputBorder(),
+),
+maxLines: 2,
+),
+],
+),
+actions: [
+TextButton(
+onPressed: () => Navigator.pop(context, false),
+child: const Text('Annuler'),
+),
+TextButton(
+onPressed: () => Navigator.pop(context, true),
+child: const Text('Ajouter'),
+),
+],
+),
+);
+
+if (confirmed == true) {
+final categoryName = categoryNameController.text.trim();
+final categoryDescription = categoryDescriptionController.text.trim();
+
+if (categoryName.isNotEmpty) {
+try {
+final newCategory = Category(
+id: const Uuid().v4(),
+name: categoryName,
+parentId: null,
+description: categoryDescription.isEmpty ? "" : categoryDescription,
+createdAt: DateTime.now().toIso8601String(),
+updatedAt: DateTime.now().toIso8601String(),
+);
+
+await DatabaseHelper.instance.createCategory(newCategory);
+_loadData();
+
+if (mounted) {
+ScaffoldMessenger.of(context).showSnackBar(
+SnackBar(
+content: Text('Catégorie "$categoryName" ajoutée avec succès'),
+backgroundColor: Colors.green,
+),
+);
+}
+} catch (e) {
+if (mounted) {
+ScaffoldMessenger.of(context).showSnackBar(
+const SnackBar(
+content: Text('Erreur lors de l\'ajout de la catégorie'),
+backgroundColor: Color.fromARGB(255, 227, 164, 160),
+),
+);
+}
+}
+} else {
+if (mounted) {
+ScaffoldMessenger.of(context).showSnackBar(
+const SnackBar(
+content: Text('Le nom de la catégorie ne peut pas être vide'),
+backgroundColor: Color.fromARGB(255, 25, 131, 11),
+),
+);
+}
+}
+}
+}
+
 @override
 Widget build(BuildContext context) {
 return Scaffold(
@@ -516,6 +608,14 @@ _filterProducts();
 ),
 );
 }),
+Padding(
+padding: const EdgeInsets.only(right: 8),
+child: ActionChip(
+label: const Text('+ Catégorie'),
+onPressed: _addNewCategory,
+avatar: const Icon(Icons.add, size: 16),
+),
+),
 ],
 ),
 );
@@ -631,7 +731,7 @@ borderRadius: BorderRadius.circular(8),
 child: const Text(
 'Stock faible',
 style: TextStyle(
-color: Colors.red,
+color: Color.fromARGB(255, 0, 0, 0),
 fontSize: 12,
 ),
 ),
@@ -647,7 +747,7 @@ Expanded(
 child: Text(
 'Stock: ${product.quantity}',
 style: TextStyle(
-color: product.isLowStock ? Colors.red : Colors.grey[700],
+color: product.isLowStock ? const Color.fromARGB(206, 214, 88, 79) : Colors.grey[700],
 fontWeight: FontWeight.w500,
 ),
 ),

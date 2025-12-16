@@ -154,48 +154,60 @@ class _SalesScreenState extends State<SalesScreen> {
           // Summary Card
           Container(
             margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.green.shade400, Colors.green.shade600],
+                colors: [Colors.blueGrey.shade50, Colors.blueGrey.shade100],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.green.withAlpha(77),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
+                  color: Colors.blueGrey.withValues(alpha: 0.2),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
                 ),
               ],
+              border: Border.all(
+                color: Colors.blueGrey.shade200,
+                width: 1,
+              ),
             ),
             child: Row(
               children: [
-                const Icon(
-                  Icons.euro,
-                  color: Colors.white,
-                  size: 32,
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.blueGrey.shade600,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Icon(
+                    Icons.euro,
+                    color: Colors.white,
+                    size: 28,
+                  ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 20),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Revenus totaux',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Colors.blueGrey.shade700,
                           fontSize: 16,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
+                      const SizedBox(height: 4),
                       Text(
                         NumberFormat.currency(symbol: '€', decimalDigits: 2)
                             .format(_calculateTotalRevenue()),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
+                        style: TextStyle(
+                          color: Colors.blueGrey.shade900,
+                          fontSize: 28,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -203,16 +215,17 @@ class _SalesScreenState extends State<SalesScreen> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withAlpha(51),
-                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.blueGrey.shade600,
+                    borderRadius: BorderRadius.circular(24),
                   ),
                   child: Text(
                     '${_filteredSales.length} vente${_filteredSales.length > 1 ? 's' : ''}',
                     style: const TextStyle(
                       color: Colors.white,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
                     ),
                   ),
                 ),
