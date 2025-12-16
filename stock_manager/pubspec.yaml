@@ -47,6 +47,23 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: "^0.13.1"
+
+
+flutter_launcher_icons:
+  # Chemin vers votre image d'icône (PNG/JPEG).
+  image_path: "assets/app_icon.png"
+
+  # Pour Android, mettez 'true' si vous voulez qu'une nouvelle icône soit générée.
+  android: true
+
+  # Pour iOS, mettez 'true' si vous voulez qu'une nouvelle icône soit générée.
+  ios: true
+
+  # OPTIONNEL : Pour une icône "adaptive" sur Android (Android 8.0 et plus)
+  # Si vous utilisez ceci, vous devez avoir un fichier d'arrière-plan différent.
+  # adaptive_icon_background: "#ffffff" # (Couleur HEX ou chemin vers un drawable)
+  # adaptive_icon_foreground: "assets/app_icon_foreground.png"
 
 flutter:
   uses-material-design: true
